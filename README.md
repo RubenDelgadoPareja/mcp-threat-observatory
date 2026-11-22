@@ -209,6 +209,7 @@ Rationale, false-positive behaviour and interpretation for each check:
 ## Documentation
 
 - [Portfolio notes](docs/PORTFOLIO.md) — how to present this without overclaiming
+- [Consented pilot and outreach](docs/OUTREACH.md) — message, rules, timeline
 - [Project brief](docs/BRIEF.md) — one page, if someone asks what this is
 - [Methodology and evidence grading](docs/METHODOLOGY.md)
 - [Check catalogue](docs/CHECKS.md)
