@@ -43,6 +43,7 @@ const FORM_CSS = `
            background:var(--accent); color:#fff; cursor:pointer; }
   button:disabled { opacity:.6; cursor:progress; }
   .note { margin-top:1.5rem; color:var(--muted); font-size:.85rem; }
+  .hint { margin:.45rem 0 .9rem; color:var(--muted); font-size:.82rem; }
   code { font-family:ui-monospace, Menlo, monospace; background:color-mix(in srgb, var(--fg) 8%, transparent);
          padding:.1rem .3rem; border-radius:.25rem; }
 `;
@@ -63,6 +64,10 @@ function formPage(token: string): string {
   <form method="POST" action="/scan?token=${encodeURIComponent(token)}">
     <label for="url">MCP endpoint</label>
     <input id="url" name="url" type="url" required placeholder="https://example.com/mcp" autofocus>
+    <p class="hint">
+      Paste the endpoint itself (usually ending in <code>/mcp</code>). Do not open it in a tab:
+      an MCP server answers protocol requests, not web pages.
+    </p>
     <label class="check">
       <input type="checkbox" name="attest" value="yes" required>
       <span>I operate this server, or I have written permission to observe it.</span>
@@ -179,6 +184,14 @@ export async function startUiServer(options: UiOptions = {}): Promise<UiServer> 
     } catch (error) {
       const message = error instanceof UnsafeTargetError ? error.message : "Invalid URL.";
       res.writeHead(400, { "content-type": "text/html; charset=utf-8" }).end(errorPage(400, message, token));
+      return;
+    }
+
+    const address = server.address() as AddressInfo | null;
+    if (address && target.port === String(address.port) && target.hostname === "127.0.0.1") {
+      res.writeHead(400, { "content-type": "text/html; charset=utf-8" }).end(
+        errorPage(400, "That is this UI, not an MCP endpoint. Paste the server's /mcp URL instead.", token),
+      );
       return;
     }
 

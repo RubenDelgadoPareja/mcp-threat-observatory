@@ -125,6 +125,17 @@ describe("local ui", () => {
     expect(html).toContain("AUTH-001");
   }, 20_000);
 
+  it("refuses to scan itself", async () => {
+    ui = await startUiServer({ port: 0, outDir: await mkdtemp(join(tmpdir(), "mcpobs-ui-")) });
+    const base = new URL(ui.url);
+    const response = await fetch(`http://127.0.0.1:${base.port}/scan${base.search}`, {
+      method: "POST",
+      body: new URLSearchParams({ url: `http://127.0.0.1:${base.port}/mcp`, attest: "yes" }),
+    });
+    expect(response.status).toBe(400);
+    expect(await response.text()).toContain("not an MCP endpoint");
+  });
+
   it("refuses a cross-origin request even with the token", async () => {
     ui = await startUiServer({ port: 0, outDir: await mkdtemp(join(tmpdir(), "mcpobs-ui-")) });
     fixture = await openMcpFixture();

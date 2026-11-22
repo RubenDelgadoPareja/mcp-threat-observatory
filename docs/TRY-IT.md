@@ -32,6 +32,11 @@ node dist/cli.js ui
 Open the URL it prints (it contains a token), paste
 `http://127.0.0.1:8787/mcp`, tick the attestation, and press **Scan**.
 
+Do not open `http://127.0.0.1:8787/mcp` in a browser tab. An MCP server answers
+protocol requests, not web pages: a browser sends `GET` and gets
+`{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"}}`. That is
+the server working correctly.
+
 You should get **five findings**: `AUTH-001` (high, unauthenticated endpoint with
 a destructive tool), `RISK-001` (medium, reader + input + egress in one catalog),
 `TOOL-002` (medium, poisoned tool description), `PROTO-001` (low) and `TOOL-003`
@@ -100,6 +105,8 @@ The HTML has inline CSS, no scripts and no external assets. It works offline.
 | --- | --- | --- |
 | `EADDRINUSE` | Port already taken | `PORT=9000 node examples/demo-server.mjs`, or `--port 4041` for the UI |
 | UI answers `403 Invalid or missing token` | Opened the URL without the token | Use the full URL printed by `ui` |
+| Browser shows `{"jsonrpc":"2.0","error":{"code":-32601,...}}` | You opened the MCP endpoint in a tab | Open the UI URL and paste the endpoint into the form |
+| UI answers `That is this UI, not an MCP endpoint` | Pasted the UI's own URL | Paste the server's `/mcp` URL |
 | `network isolation is unavailable` | `unshare` is not permitted | Use `--allow-unisolated` **only** for the fixtures in this repo |
 | `command not found: mcpobs` | You are running from source | Use `node dist/cli.js …`, or `npx github:RubenDelgadoPareja/mcp-threat-observatory …` |
 | Browser cannot reach the UI from Windows | WSL2 forwarding is off | Run `node dist/cli.js ui --port 4040` and open `http://localhost:4040/?token=…` in Windows; if it still fails, use the WSL IP printed by `hostname -I` |

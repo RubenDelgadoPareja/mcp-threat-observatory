@@ -186,6 +186,17 @@ const server = createServer(async (req, res) => {
   const port = server.address().port;
   const prmUrl = `http://127.0.0.1:${port}/.well-known/oauth-protected-resource/mcp`;
 
+  if (req.method === "GET" || req.method === "HEAD") {
+    res.writeHead(405, { "content-type": "text/plain; charset=utf-8" });
+    res.end(
+      "This is a synthetic MCP endpoint, not a web page.\n\n" +
+        "Open the observatory UI instead:\n" +
+        "  node dist/cli.js ui\n\n" +
+        `Then paste this URL into the form: http://127.0.0.1:${port}/mcp\n`,
+    );
+    return;
+  }
+
   if (req.url?.startsWith("/.well-known/oauth-protected-resource")) {
     if (!profile.prm) return respond(res, 404, { error: "not_found" });
     return respond(res, 200, {
