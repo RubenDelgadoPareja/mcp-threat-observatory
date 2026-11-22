@@ -1,0 +1,269 @@
+{
+  "schemaVersion": "1",
+  "generatedAt": "2026-11-22T16:14:12.685Z",
+  "probe": {
+    "schemaVersion": "1",
+    "target": "http://127.0.0.1:8788/mcp",
+    "transport": "http",
+    "collectedAt": "2026-11-22T16:14:08.653Z",
+    "reachable": true,
+    "auth": {
+      "networkAccessible": true,
+      "requiresAuth": false,
+      "statusOnUnauthenticatedInitialize": 200,
+      "wwwAuthenticate": null,
+      "resourceMetadataUrl": null,
+      "protectedResourceMetadata": null
+    },
+    "handshake": {
+      "initialized": true,
+      "protocolVersion": "2025-06-18",
+      "serverInfo": {
+        "name": "demo-open-readonly",
+        "version": "0.1.0"
+      }
+    },
+    "capabilities": {
+      "tools": {}
+    },
+    "tools": [
+      {
+        "name": "list_notes",
+        "title": "List notes",
+        "description": "List the notes visible to the authenticated user. Read-only.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "additionalProperties": false
+        },
+        "annotations": {
+          "title": "List notes",
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        }
+      }
+    ],
+    "toolsErrorCode": null,
+    "resources": {
+      "ok": true,
+      "count": 0,
+      "errorCode": null
+    },
+    "prompts": {
+      "ok": true,
+      "count": 0,
+      "errorCode": null
+    },
+    "probes": [
+      {
+        "at": "2026-11-22T16:14:08.661Z",
+        "durationMs": 149,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8788/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "155",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:08 GMT",
+            "keep-alive": "timeout=5",
+            "mcp-session-id": "session-open-readonly"
+          },
+          "bodyExcerpt": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"demo-open-readonly\",\"version\":\"0.1.0\"}}}",
+          "bodyDigest": "4af85d4d5541b4e00f7fb9700871a56a6fe99e3b664b0e438158b13764ed08d2",
+          "bodyBytes": 155
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:09.663Z",
+        "durationMs": 6,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8788/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent",
+            "mcp-session-id",
+            "mcp-protocol-version"
+          ]
+        },
+        "response": {
+          "status": 202,
+          "headers": {
+            "connection": "keep-alive",
+            "date": "Sun, 22 Nov 2026 16:14:09 GMT",
+            "keep-alive": "timeout=5",
+            "transfer-encoding": "chunked"
+          },
+          "bodyExcerpt": "",
+          "bodyDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bodyBytes": 0
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:10.664Z",
+        "durationMs": 5,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8788/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent",
+            "mcp-session-id",
+            "mcp-protocol-version"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "395",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:10 GMT",
+            "keep-alive": "timeout=5"
+          },
+          "bodyExcerpt": "{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"tools\":[{\"name\":\"list_notes\",\"title\":\"List notes\",\"description\":\"List the notes visible to the authenticated user. Read-only.\",\"annotations\":{\"title\":\"List notes\",\"readOnlyHint\":true,\"idempotentHint\":true,\"openWorldHint\":false},\"inputSchema\":{\"type\":\"object\",\"properties\":{\"limit\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":100}},\"additionalProperties\":false}}]}}",
+          "bodyDigest": "e7ffc0ea613d88ab4cd2ab6523184194b1b5b3e589a88e5d069ce6380978b875",
+          "bodyBytes": 395
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:11.664Z",
+        "durationMs": 5,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8788/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent",
+            "mcp-session-id",
+            "mcp-protocol-version"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "50",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:11 GMT",
+            "keep-alive": "timeout=5"
+          },
+          "bodyExcerpt": "{\"jsonrpc\":\"2.0\",\"id\":3,\"result\":{\"resources\":[]}}",
+          "bodyDigest": "a9ff88af3e9e5d2bdc7ff56dced63eb2ebf4b09da3d5810be25d2de1ce25b791",
+          "bodyBytes": 50
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:12.665Z",
+        "durationMs": 9,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8788/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent",
+            "mcp-session-id",
+            "mcp-protocol-version"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "48",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:12 GMT",
+            "keep-alive": "timeout=5"
+          },
+          "bodyExcerpt": "{\"jsonrpc\":\"2.0\",\"id\":4,\"result\":{\"prompts\":[]}}",
+          "bodyDigest": "8636f6bcce1dc252dbb9c35260a9143acb7e585169e649d9563e9d1c32c19139",
+          "bodyBytes": 48
+        }
+      }
+    ],
+    "limitations": [
+      "No authenticated session was attempted: behaviour behind the login boundary is unobserved.",
+      "Only the streamable HTTP transport was probed; stdio-only servers are out of scope.",
+      "No tool was invoked; only discovery methods (initialize, tools/list, resources/list, prompts/list) were called.",
+      "Body excerpts are truncated; SHA-256 digests cover the full response body.",
+      "Collector contact is not configured (MCPOBS_CONTACT); provenance is weaker than it should be."
+    ],
+    "collector": {
+      "name": "mcp-threat-observatory",
+      "version": "0.1.0",
+      "userAgent": "mcp-threat-observatory/0.1.0 (passive research; contact not configured)",
+      "contact": null
+    }
+  },
+  "findings": [
+    {
+      "fingerprint": "bc737c548c428d69",
+      "checkId": "AUTH-001",
+      "title": "MCP endpoint completes a handshake with no credential",
+      "severity": "low",
+      "confidence": "high",
+      "assertion": "observed",
+      "taxonomy": [
+        "authentication"
+      ],
+      "owasp": [
+        "MCP07"
+      ],
+      "observation": "An unauthenticated initialize succeeded (HTTP 200) and 1 tool were enumerated.",
+      "inference": "The exposed tool set appears read-mostly. Public read-only servers are a legitimate design.",
+      "recommendation": "If this endpoint is not intentionally public, require OAuth 2.1 per the MCP authorization specification and return 401 with a WWW-Authenticate challenge on unauthenticated requests.",
+      "limitations": [
+        "Only the unauthenticated surface was observed. Behaviour behind the login boundary is unknown.",
+        "Intent is not observable: a public endpoint may be a deliberate choice."
+      ],
+      "evidence": [
+        {
+          "kind": "http",
+          "locator": "POST http://127.0.0.1:8788/mcp → 200"
+        },
+        {
+          "kind": "mcp",
+          "locator": "initialize → result",
+          "excerpt": "demo-open-readonly"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "bySeverity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 1,
+      "info": 0
+    },
+    "byConfidence": {
+      "high": 1,
+      "moderate": 0,
+      "low": 0
+    },
+    "observed": 1,
+    "inferred": 0
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "schemaVersion": "1",
+  "generatedAt": "2026-11-22T16:14:22.804Z",
+  "probe": {
+    "schemaVersion": "1",
+    "target": "http://127.0.0.1:8792/mcp",
+    "transport": "http",
+    "collectedAt": "2026-11-22T16:14:20.773Z",
+    "reachable": true,
+    "auth": {
+      "networkAccessible": true,
+      "requiresAuth": true,
+      "statusOnUnauthenticatedInitialize": 403,
+      "wwwAuthenticate": null,
+      "resourceMetadataUrl": null,
+      "protectedResourceMetadata": {
+        "found": false,
+        "url": null,
+        "status": 404
+      }
+    },
+    "handshake": {
+      "initialized": false
+    },
+    "capabilities": null,
+    "tools": null,
+    "toolsErrorCode": null,
+    "resources": null,
+    "prompts": null,
+    "probes": [
+      {
+        "at": "2026-11-22T16:14:20.773Z",
+        "durationMs": 63,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8792/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent"
+          ]
+        },
+        "response": {
+          "status": 403,
+          "headers": {
+            "connection": "keep-alive",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:20 GMT",
+            "keep-alive": "timeout=5",
+            "transfer-encoding": "chunked"
+          },
+          "bodyExcerpt": "{\"error\":\"forbidden\"}",
+          "bodyDigest": "2815fee6edc3716bd6c85027399f06e03168706e7fcac786ecf0c66e6190843f",
+          "bodyBytes": 21
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:21.774Z",
+        "durationMs": 6,
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:8792/.well-known/oauth-protected-resource/mcp",
+          "headers": [
+            "user-agent",
+            "accept"
+          ]
+        },
+        "response": {
+          "status": 404,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "21",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:21 GMT",
+            "keep-alive": "timeout=5"
+          },
+          "bodyExcerpt": "{\"error\":\"not_found\"}",
+          "bodyDigest": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d",
+          "bodyBytes": 21
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:22.774Z",
+        "durationMs": 3,
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:8792/.well-known/oauth-protected-resource",
+          "headers": [
+            "user-agent",
+            "accept"
+          ]
+        },
+        "response": {
+          "status": 404,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "21",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:22 GMT",
+            "keep-alive": "timeout=5"
+          },
+          "bodyExcerpt": "{\"error\":\"not_found\"}",
+          "bodyDigest": "d2dfdc9511fbeaa0701d1f8730f4989313b062ca1b61a2bd8bed8f4f5d654b5d",
+          "bodyBytes": 21
+        }
+      }
+    ],
+    "limitations": [
+      "No authenticated session was attempted: behaviour behind the login boundary is unobserved.",
+      "Only the streamable HTTP transport was probed; stdio-only servers are out of scope.",
+      "No tool was invoked; only discovery methods (initialize, tools/list, resources/list, prompts/list) were called.",
+      "Body excerpts are truncated; SHA-256 digests cover the full response body.",
+      "Collector contact is not configured (MCPOBS_CONTACT); provenance is weaker than it should be."
+    ],
+    "collector": {
+      "name": "mcp-threat-observatory",
+      "version": "0.1.0",
+      "userAgent": "mcp-threat-observatory/0.1.0 (passive research; contact not configured)",
+      "contact": null
+    }
+  },
+  "findings": [
+    {
+      "fingerprint": "b60e56b3d29b21c0",
+      "checkId": "AUTH-002",
+      "title": "Unauthenticated request returns 403 instead of 401",
+      "severity": "medium",
+      "confidence": "high",
+      "assertion": "observed",
+      "taxonomy": [
+        "interoperability",
+        "authentication"
+      ],
+      "owasp": [
+        "MCP07"
+      ],
+      "observation": "The unauthenticated initialize request was answered with HTTP 403 Forbidden.",
+      "inference": "MCP authorization discovery is driven by 401 + WWW-Authenticate. A 403 typically prevents clients from discovering how to authenticate, producing failures that look like network errors.",
+      "recommendation": "Return 401 Unauthorized with a WWW-Authenticate: Bearer resource_metadata=\"…\" challenge. Reserve 403 for authenticated requests with insufficient scope.",
+      "limitations": [
+        "Some clients fall back to well-known discovery, so this is not always user-visible.",
+        "A 403 may also come from an edge WAF in front of the MCP server, not from the server itself."
+      ],
+      "evidence": [
+        {
+          "kind": "http",
+          "locator": "POST http://127.0.0.1:8792/mcp → 403"
+        }
+      ]
+    },
+    {
+      "fingerprint": "c1c4f3f10e3f8f36",
+      "checkId": "AUTH-003",
+      "title": "Protected Resource Metadata (RFC 9728) is not discoverable",
+      "severity": "medium",
+      "confidence": "high",
+      "assertion": "observed",
+      "taxonomy": [
+        "authentication",
+        "interoperability"
+      ],
+      "owasp": [
+        "MCP07"
+      ],
+      "observation": "The endpoint requires authentication, but no valid protected resource metadata document was found (last status: 404).",
+      "inference": "Clients that follow the specification cannot auto-discover the authorization server. Users will need manual configuration or will simply fail to connect.",
+      "recommendation": "Serve /.well-known/oauth-protected-resource (and the resource-path variant) with at least `resource` and `authorization_servers`, or advertise it via the resource_metadata parameter in the 401 challenge.",
+      "limitations": [
+        "Discovery was attempted only on well-known paths and the advertised hint URL.",
+        "A non-standard discovery mechanism would not be detected."
+      ],
+      "evidence": [
+        {
+          "kind": "derived",
+          "locator": "GET /.well-known/oauth-protected-resource* → not found"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "bySeverity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 2,
+      "low": 0,
+      "info": 0
+    },
+    "byConfidence": {
+      "high": 2,
+      "moderate": 0,
+      "low": 0
+    },
+    "observed": 2,
+    "inferred": 0
+  }
+}

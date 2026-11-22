@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcpobs-analysis"
+version = "0.1.0"
+description = "Longitudinal analysis of mcp-threat-observatory snapshots"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+analysis = ["pandas>=2.0", "matplotlib>=3.8"]
+stix = ["stix2>=3.0"]
+dev = ["pytest>=8", "stix2>=3.0", "pandas>=2.0"]
+
+[project.scripts]
+mcpobs-analysis = "mcpobs_analysis.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

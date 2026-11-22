@@ -40,6 +40,17 @@ metadata quality, input-schema strictness, interoperability semantics and
 capability composition — each reported as either **observed** or **inferred**,
 with an explicit confidence level and an explicit list of limitations.
 
+## Two languages, one reason
+
+| Layer | Language | Why |
+| --- | --- | --- |
+| Collection | TypeScript | Runs on a developer's machine and ships through `npx`. One command, no environment. |
+| Analysis | Python | Notebooks, pandas, and the reference `stix2` implementation — where threat-intelligence work actually happens. |
+
+The Python layer is not a port. It validates the STIX the collector emits against
+the ecosystem's own parser, computes corpus distributions, and implements drift
+detection over tool definitions.
+
 ## Quickstart
 
 ```bash
@@ -68,6 +79,21 @@ node dist/cli.js inspect <snapshot.json>   # provenance and integrity details
 
 Set `MCPOBS_CONTACT` to a URL or address before collecting. Records without a
 contact are recorded as weaker provenance, on purpose.
+
+### Analysis (Python, standard library only)
+
+```bash
+python3 -m unittest discover -s python/tests -t python     # 45 tests
+PYTHONPATH=python/src python3 -m mcpobs_analysis summarize examples/corpus
+PYTHONPATH=python/src python3 -m mcpobs_analysis checks examples/corpus
+PYTHONPATH=python/src python3 -m mcpobs_analysis compare <a.json> <b.json>
+PYTHONPATH=python/src python3 -m mcpobs_analysis validate-stix examples/sample/bundle.stix.json --deep
+```
+
+Optional extras: `pip install -e "python[analysis]"` for pandas and matplotlib,
+`"python[stix]"` for deep validation with the reference implementation. See
+[python/README.md](python/README.md) and
+[python/notebooks/01_corpus_overview.ipynb](python/notebooks/01_corpus_overview.ipynb).
 
 ## Output
 
@@ -127,12 +153,15 @@ Rationale, false-positive behaviour and interpretation for each check:
 
 ## Documentation
 
+- [Project brief](docs/BRIEF.md) — one page, for forwarding
 - [Methodology and evidence grading](docs/METHODOLOGY.md)
 - [Check catalogue](docs/CHECKS.md)
 - [Ethics and authorisation](docs/ETHICS.md)
 - [Disclosure policy](docs/DISCLOSURE.md)
 - [Data model and STIX mapping](docs/DATA-MODEL.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Python analysis layer](python/README.md)
+- [If you are coming from frontend](docs/LEARNING.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## Ethics

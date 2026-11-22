@@ -1,0 +1,339 @@
+{
+  "schemaVersion": "1",
+  "generatedAt": "2026-11-22T16:14:17.012Z",
+  "probe": {
+    "schemaVersion": "1",
+    "target": "http://127.0.0.1:8789/mcp",
+    "transport": "http",
+    "collectedAt": "2026-11-22T16:14:12.991Z",
+    "reachable": true,
+    "auth": {
+      "networkAccessible": true,
+      "requiresAuth": false,
+      "statusOnUnauthenticatedInitialize": 200,
+      "wwwAuthenticate": null,
+      "resourceMetadataUrl": null,
+      "protectedResourceMetadata": null
+    },
+    "handshake": {
+      "initialized": true,
+      "protocolVersion": "2025-06-18",
+      "serverInfo": {
+        "name": "demo-open-destructive",
+        "version": "0.1.0"
+      }
+    },
+    "capabilities": {
+      "tools": {}
+    },
+    "tools": [
+      {
+        "name": "list_notes",
+        "title": "List notes",
+        "description": "List the notes visible to the authenticated user. Read-only.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "additionalProperties": false
+        },
+        "annotations": {
+          "title": "List notes",
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        }
+      },
+      {
+        "name": "delete_workspace",
+        "title": "Delete workspace",
+        "description": "Permanently delete a workspace and everything inside it.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "workspace_id": {
+              "type": "string",
+              "pattern": "^ws_[a-z0-9]{8}$"
+            }
+          },
+          "required": [
+            "workspace_id"
+          ],
+          "additionalProperties": false
+        },
+        "annotations": {
+          "title": "Delete workspace",
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "openWorldHint": false
+        }
+      },
+      {
+        "name": "run_shell",
+        "title": "Run shell command",
+        "description": "Execute a shell command on the host.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string"
+            }
+          }
+        },
+        "annotations": {
+          "title": "Run shell command",
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "openWorldHint": true
+        }
+      }
+    ],
+    "toolsErrorCode": null,
+    "resources": {
+      "ok": true,
+      "count": 0,
+      "errorCode": null
+    },
+    "prompts": {
+      "ok": true,
+      "count": 0,
+      "errorCode": null
+    },
+    "probes": [
+      {
+        "at": "2026-11-22T16:14:12.994Z",
+        "durationMs": 216,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8789/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "158",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:13 GMT",
+            "keep-alive": "timeout=5",
+            "mcp-session-id": "session-open-destructive"
+          },
+          "bodyExcerpt": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{\"tools\":{}},\"serverInfo\":{\"name\":\"demo-open-destructive\",\"version\":\"0.1.0\"}}}",
+          "bodyDigest": "ff1dbd2d941657a9ff84af3c937683976515705b99a676020b16b68669723f62",
+          "bodyBytes": 158
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:13.995Z",
+        "durationMs": 4,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8789/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent",
+            "mcp-session-id",
+            "mcp-protocol-version"
+          ]
+        },
+        "response": {
+          "status": 202,
+          "headers": {
+            "connection": "keep-alive",
+            "date": "Sun, 22 Nov 2026 16:14:13 GMT",
+            "keep-alive": "timeout=5",
+            "transfer-encoding": "chunked"
+          },
+          "bodyExcerpt": "",
+          "bodyDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bodyBytes": 0
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:14.996Z",
+        "durationMs": 6,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8789/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent",
+            "mcp-session-id",
+            "mcp-protocol-version"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "1084",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:14 GMT",
+            "keep-alive": "timeout=5"
+          },
+          "bodyExcerpt": "{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"tools\":[{\"name\":\"list_notes\",\"title\":\"List notes\",\"description\":\"List the notes visible to the authenticated user. Read-only.\",\"annotations\":{\"title\":\"List notes\",\"readOnlyHint\":true,\"idempotentHint\":true,\"openWorldHint\":false},\"inputSchema\":{\"type\":\"object\",\"properties\":{\"limit\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":100}},\"additionalProperties\":false}},{\"name\":\"delete_workspace\",\"title\":\"Delete workspace\",\"description\":\"Permanently delete a workspace and everything inside it.\",\"annotations\":{\"title\":\"Delete workspace\",\"readOnlyHint\":false,\"destructiveHint\":true,\"openWorldHint\":false},\"inputSchema\":{\"type\":\"object\",\"properties\":{\"workspace_id\":{\"type\":\"string\",\"pattern\":\"^ws_[a-z0-9]{8}$\"}},\"required\":[\"workspace_id\"],\"additionalProperties\":false}},{\"name\":\"run_shell\",\"title\":\"Run shell command\",\"description\":\"Execute a shell command on the host.\",\"annotations\":{\"title\":\"Run shell command\",\"readOnlyHint\":false,\"destructiveHint\":true,\"openWorldHint\":true},\"inputSchema\":{\"type\":\"object\",\"properties\":{\"command\":{\"type\":\"string\"}}}}]}}",
+          "bodyDigest": "a282b5e5be4a52e9faba21cb6341042675399c353777e593a08e798071d35579",
+          "bodyBytes": 1084
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:15.996Z",
+        "durationMs": 5,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8789/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent",
+            "mcp-session-id",
+            "mcp-protocol-version"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "50",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:15 GMT",
+            "keep-alive": "timeout=5"
+          },
+          "bodyExcerpt": "{\"jsonrpc\":\"2.0\",\"id\":3,\"result\":{\"resources\":[]}}",
+          "bodyDigest": "a9ff88af3e9e5d2bdc7ff56dced63eb2ebf4b09da3d5810be25d2de1ce25b791",
+          "bodyBytes": 50
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:16.997Z",
+        "durationMs": 5,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8789/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent",
+            "mcp-session-id",
+            "mcp-protocol-version"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "48",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:17 GMT",
+            "keep-alive": "timeout=5"
+          },
+          "bodyExcerpt": "{\"jsonrpc\":\"2.0\",\"id\":4,\"result\":{\"prompts\":[]}}",
+          "bodyDigest": "8636f6bcce1dc252dbb9c35260a9143acb7e585169e649d9563e9d1c32c19139",
+          "bodyBytes": 48
+        }
+      }
+    ],
+    "limitations": [
+      "No authenticated session was attempted: behaviour behind the login boundary is unobserved.",
+      "Only the streamable HTTP transport was probed; stdio-only servers are out of scope.",
+      "No tool was invoked; only discovery methods (initialize, tools/list, resources/list, prompts/list) were called.",
+      "Body excerpts are truncated; SHA-256 digests cover the full response body.",
+      "Collector contact is not configured (MCPOBS_CONTACT); provenance is weaker than it should be."
+    ],
+    "collector": {
+      "name": "mcp-threat-observatory",
+      "version": "0.1.0",
+      "userAgent": "mcp-threat-observatory/0.1.0 (passive research; contact not configured)",
+      "contact": null
+    }
+  },
+  "findings": [
+    {
+      "fingerprint": "ebd2a84a6f44645d",
+      "checkId": "AUTH-001",
+      "title": "MCP endpoint completes a handshake with no credential",
+      "severity": "high",
+      "confidence": "high",
+      "assertion": "observed",
+      "taxonomy": [
+        "authentication"
+      ],
+      "owasp": [
+        "MCP07"
+      ],
+      "observation": "An unauthenticated initialize succeeded (HTTP 200) and 3 tools were enumerated.",
+      "inference": "Tools with high-impact capability are reachable without a credential: delete_workspace, run_shell.",
+      "recommendation": "If this endpoint is not intentionally public, require OAuth 2.1 per the MCP authorization specification and return 401 with a WWW-Authenticate challenge on unauthenticated requests.",
+      "limitations": [
+        "Only the unauthenticated surface was observed. Behaviour behind the login boundary is unknown.",
+        "Intent is not observable: a public endpoint may be a deliberate choice."
+      ],
+      "evidence": [
+        {
+          "kind": "http",
+          "locator": "POST http://127.0.0.1:8789/mcp → 200"
+        },
+        {
+          "kind": "mcp",
+          "locator": "initialize → result",
+          "excerpt": "demo-open-destructive"
+        }
+      ]
+    },
+    {
+      "fingerprint": "f469ee102275c7ff",
+      "checkId": "TOOL-003",
+      "title": "Tool input schemas accept unconstrained input",
+      "severity": "low",
+      "confidence": "high",
+      "assertion": "observed",
+      "taxonomy": [
+        "input-validation"
+      ],
+      "owasp": [
+        "MCP05",
+        "MCP02"
+      ],
+      "observation": "1 of 3 tools accept an unconstrained string parameter; 1 use an object schema without additionalProperties: false. High-impact tools affected: run_shell.",
+      "inference": "Unconstrained input widens the path from model output to a shell, a query, a filesystem path or an outbound request.",
+      "recommendation": "Set additionalProperties: false and constrain every string parameter with enum, pattern, format or maxLength.",
+      "limitations": [
+        "Schema strictness is a proxy: a strict schema does not guarantee safe handling downstream."
+      ],
+      "evidence": [
+        {
+          "kind": "mcp",
+          "locator": "tools/list → inputSchema"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "bySeverity": {
+      "critical": 0,
+      "high": 1,
+      "medium": 0,
+      "low": 1,
+      "info": 0
+    },
+    "byConfidence": {
+      "high": 2,
+      "moderate": 0,
+      "low": 0
+    },
+    "observed": 2,
+    "inferred": 0
+  }
+}

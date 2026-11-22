@@ -60,9 +60,42 @@ Then add it to `src/checks/index.ts` and cover both branches in `test/`.
 ## Style
 
 - TypeScript strict mode. `npm run typecheck` must pass.
+- Python 3.11+, standard library only in the core package. No dependency may be
+  added without a reason in the pull request.
 - Comments explain *why*, never *what*. The code already says what.
 - English in code, docs and commit messages.
 - Small commits with a reason in the message, not a description of the diff.
+
+## Python side
+
+```bash
+python3 -m unittest discover -s python/tests -t python -v
+PYTHONPATH=python/src python3 -m mcpobs_analysis checks examples/corpus
+```
+
+Rules specific to the analysis layer:
+
+1. **The schema is the contract.** If the collector changes a field, the Python
+   `Snapshot.from_dict` must change in the same pull request, and
+   `test_corpus_contract.py` must still pass.
+2. **`None` is not zero.** Never coerce an unknown into a default to make a
+   number look complete.
+3. **No network.** The analysis layer reads files and prints results. Fetching
+   belongs to the collector.
+4. **Optional dependencies stay optional.** `pandas` and `stix2` are extras, and
+   every code path that uses them must degrade with a clear message.
+
+### Regenerating the synthetic corpus
+
+The corpus is generated, not hand-written:
+
+```bash
+npm run build
+node examples/build-corpus.mjs
+```
+
+If a check changes, regenerate and review the diff in `examples/corpus/`. A
+change there is a change in what the project claims to observe.
 
 ## Data and privacy
 

@@ -56,6 +56,10 @@ jobs:
           node -e 'const b=require("/tmp/bundle.json"); if(b.type!=="bundle"||!b.objects.length) process.exit(1)'
           kill $SERVER_PID
 
+      - name: Cross-language check of the STIX export
+        run: |
+          PYTHONPATH=python/src python3 -m mcpobs_analysis validate-stix /tmp/bundle.json
+
       - name: Consent gate must fail closed
         run: |
           set +e
@@ -63,3 +67,27 @@ jobs:
           code=$?
           set -e
           test "$code" -eq 2
+
+  python:
+    name: python analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Standard library tests
+        run: python -m unittest discover -s python/tests -t python -v
+
+      - name: Reference implementation of STIX
+        run: pip install "stix2>=3.0"
+
+      - name: Deep-validate the committed bundle
+        run: |
+          PYTHONPATH=python/src python -m mcpobs_analysis validate-stix \
+            examples/sample/bundle.stix.json --deep
+
+      - name: Corpus analysis smoke test
+        run: PYTHONPATH=python/src python -m mcpobs_analysis checks examples/corpus

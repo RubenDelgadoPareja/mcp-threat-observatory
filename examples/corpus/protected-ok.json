@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "1",
+  "generatedAt": "2026-11-22T16:14:18.266Z",
+  "probe": {
+    "schemaVersion": "1",
+    "target": "http://127.0.0.1:8790/mcp",
+    "transport": "http",
+    "collectedAt": "2026-11-22T16:14:17.259Z",
+    "reachable": true,
+    "auth": {
+      "networkAccessible": true,
+      "requiresAuth": true,
+      "statusOnUnauthenticatedInitialize": 401,
+      "wwwAuthenticate": "Bearer resource_metadata=\"http://127.0.0.1:8790/.well-known/oauth-protected-resource/mcp\", scope=\"notes.read\"",
+      "resourceMetadataUrl": "http://127.0.0.1:8790/.well-known/oauth-protected-resource/mcp",
+      "protectedResourceMetadata": {
+        "found": true,
+        "url": "http://127.0.0.1:8790/.well-known/oauth-protected-resource/mcp",
+        "status": 200,
+        "body": {
+          "resource": "http://127.0.0.1:8790/mcp",
+          "authorization_servers": [
+            "https://auth.example.test"
+          ],
+          "bearer_methods_supported": [
+            "header"
+          ],
+          "scopes_supported": [
+            "notes.read"
+          ]
+        },
+        "authorizationServers": [
+          "https://auth.example.test"
+        ]
+      }
+    },
+    "handshake": {
+      "initialized": false,
+      "errorCode": -32001,
+      "errorMessage": "Unauthorized"
+    },
+    "capabilities": null,
+    "tools": null,
+    "toolsErrorCode": null,
+    "resources": null,
+    "prompts": null,
+    "probes": [
+      {
+        "at": "2026-11-22T16:14:17.260Z",
+        "durationMs": 91,
+        "request": {
+          "method": "POST",
+          "url": "http://127.0.0.1:8790/mcp",
+          "headers": [
+            "content-type",
+            "accept",
+            "user-agent"
+          ]
+        },
+        "response": {
+          "status": 401,
+          "headers": {
+            "connection": "keep-alive",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:17 GMT",
+            "keep-alive": "timeout=5",
+            "transfer-encoding": "chunked",
+            "www-authenticate": "Bearer resource_metadata=\"http://127.0.0.1:8790/.well-known/oauth-protected-resource/mcp\", scope=\"notes.read\""
+          },
+          "bodyExcerpt": "{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":-32001,\"message\":\"Unauthorized\"}}",
+          "bodyDigest": "2964da12ff5296b31c9a4138702e48e4fa7051d5c0a4abe043f7df19610f81ff",
+          "bodyBytes": 73
+        }
+      },
+      {
+        "at": "2026-11-22T16:14:18.261Z",
+        "durationMs": 4,
+        "request": {
+          "method": "GET",
+          "url": "http://127.0.0.1:8790/.well-known/oauth-protected-resource/mcp",
+          "headers": [
+            "user-agent",
+            "accept"
+          ]
+        },
+        "response": {
+          "status": 200,
+          "headers": {
+            "connection": "keep-alive",
+            "content-length": "166",
+            "content-type": "application/json",
+            "date": "Sun, 22 Nov 2026 16:14:18 GMT",
+            "keep-alive": "timeout=5"
+          },
+          "bodyExcerpt": "{\"resource\":\"http://127.0.0.1:8790/mcp\",\"authorization_servers\":[\"https://auth.example.test\"],\"bearer_methods_supported\":[\"header\"],\"scopes_supported\":[\"notes.read\"]}",
+          "bodyDigest": "a481b9da10d8da9a15831122d483ce8bf7e380cc1efad51f8c07eaa3f5bfde61",
+          "bodyBytes": 166
+        }
+      }
+    ],
+    "limitations": [
+      "No authenticated session was attempted: behaviour behind the login boundary is unobserved.",
+      "Only the streamable HTTP transport was probed; stdio-only servers are out of scope.",
+      "No tool was invoked; only discovery methods (initialize, tools/list, resources/list, prompts/list) were called.",
+      "Body excerpts are truncated; SHA-256 digests cover the full response body.",
+      "Collector contact is not configured (MCPOBS_CONTACT); provenance is weaker than it should be."
+    ],
+    "collector": {
+      "name": "mcp-threat-observatory",
+      "version": "0.1.0",
+      "userAgent": "mcp-threat-observatory/0.1.0 (passive research; contact not configured)",
+      "contact": null
+    }
+  },
+  "findings": [],
+  "summary": {
+    "total": 0,
+    "bySeverity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "info": 0
+    },
+    "byConfidence": {
+      "high": 0,
+      "moderate": 0,
+      "low": 0
+    },
+    "observed": 0,
+    "inferred": 0
+  }
+}
