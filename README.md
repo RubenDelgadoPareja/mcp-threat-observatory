@@ -25,6 +25,10 @@ MEDIUM  BEHAV-003  read .env
 The same run against a server that only echoes produces **zero findings**. That
 contrast is the point: an instrument that always alerts observes nothing.
 
+**Read the method note:** [Evidence, not verdicts](notes/2026-11-evidence-not-verdicts.md)
+— why the record matters more than the verdict, what the tool cannot see, and how
+to check every claim.
+
 **Status: v0.2.** Two modes: passive observation (no code executed) and
 behavioural collection (server executed inside a network namespace, with canary
 credentials). No clustering yet, and no attribution ever.
@@ -212,6 +216,7 @@ Rationale, false-positive behaviour and interpretation for each check:
 ## Documentation
 
 - [Portfolio notes](docs/PORTFOLIO.md) — how to present this without overclaiming
+- [Method note: Evidence, not verdicts](notes/2026-11-evidence-not-verdicts.md)
 - [Consented pilot and outreach](docs/OUTREACH.md) — message, rules, timeline
 - [Project brief](docs/BRIEF.md) — one page, if someone asks what this is
 - [Methodology and evidence grading](docs/METHODOLOGY.md)
