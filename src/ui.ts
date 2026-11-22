@@ -21,47 +21,50 @@ export interface UiServer {
 }
 
 const UI_CSS = `
-  .console { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,.85fr); gap:1rem; margin-top:1.5rem; }
+  .console { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(0,.85fr); gap:.9rem; margin-top:1.25rem; }
   @media (max-width:860px) { .console { grid-template-columns:1fr; } }
   .panel {
-    border:1px solid var(--line); border-radius:var(--radius);
-    background:linear-gradient(180deg,var(--panel-2),var(--panel)); padding:1.1rem 1.15rem;
+    border:1px solid var(--line); border-top:2px solid var(--line-2);
+    background:linear-gradient(180deg,var(--panel-2),var(--panel)); padding:.85rem .95rem;
   }
   .mono-label {
-    display:block; font-family:var(--mono); font-size:.66rem; letter-spacing:.14em;
-    text-transform:uppercase; color:var(--faint); margin:0 0 .45rem;
+    display:block; font-size:.66rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--faint); margin:0 0 .4rem;
   }
+  .mono-label::before { content:"// "; color:var(--line-2); }
   .input-row {
-    display:flex; align-items:center; gap:.6rem; padding:.1rem .75rem;
-    border:1px solid var(--line-2); border-radius:.4rem; background:var(--bg-2);
+    display:flex; align-items:center; gap:.55rem; padding:.05rem .65rem;
+    border:1px solid var(--line-2); background:var(--bg);
   }
   .input-row:focus-within {
     border-color:var(--accent);
-    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+    box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
   }
-  .prompt { font-family:var(--mono); color:var(--accent); }
+  .prompt { color:var(--accent); }
   input[type=url] {
     flex:1; min-width:0; border:0; outline:none; background:transparent; color:var(--fg);
-    font:inherit; font-family:var(--mono); font-size:.9rem; padding:.65rem 0;
+    font:inherit; font-family:var(--mono); font-size:.86rem; padding:.55rem 0;
   }
-  .hint { margin:.5rem 0 1rem; color:var(--faint); font-size:.82rem; }
+  input[type=url]::placeholder { color:var(--faint); }
+  .hint { margin:.45rem 0 .95rem; color:var(--faint); font-size:.76rem; }
   .check {
-    display:flex; gap:.6rem; align-items:flex-start; margin:0 0 1.15rem;
-    color:var(--muted); font-size:.86rem; line-height:1.5;
+    display:flex; gap:.55rem; align-items:flex-start; margin:0 0 1rem;
+    color:var(--muted); font-size:.8rem; line-height:1.5;
   }
-  .check input { margin-top:.22rem; accent-color:var(--accent); }
+  .check input { margin-top:.2rem; accent-color:var(--accent); }
   button {
-    font:inherit; font-weight:650; font-size:.9rem; letter-spacing:.02em;
-    padding:.62rem 1.05rem; border-radius:.4rem; cursor:pointer;
-    border:1px solid var(--accent); background:var(--accent); color:var(--accent-fg);
+    font:inherit; font-family:var(--mono); font-size:.76rem; font-weight:600;
+    letter-spacing:.16em; text-transform:uppercase; padding:.55rem .95rem;
+    cursor:pointer; border:1px solid var(--accent); background:transparent; color:var(--accent);
   }
-  button:hover { filter:brightness(1.08); }
+  button::before { content:"[ "; } button::after { content:" ]"; }
+  button:hover { background:color-mix(in srgb, var(--accent) 14%, transparent); }
   button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-  .facts { font-size:.85rem; color:var(--muted); }
-  .facts ul { margin:.2rem 0 0 1rem; padding:0; }
-  .facts li { margin:.35rem 0; }
-  .facts code { font-size:.8rem; }
-  .back { display:inline-block; margin-top:1.25rem; font-family:var(--mono); font-size:.82rem; color:var(--accent); }
+  .facts { font-size:.78rem; color:var(--muted); }
+  .facts ul { margin:.1rem 0 0 1rem; padding:0; }
+  .facts li { margin:.3rem 0; }
+  .facts code { font-size:.75rem; }
+  .back { display:inline-block; margin-top:1rem; font-size:.78rem; letter-spacing:.1em; color:var(--accent); }
 `;
 
 function shell(title: string, body: string): string {
@@ -76,9 +79,13 @@ function shell(title: string, body: string): string {
 </head>
 <body>
 <main>
+<div class="deck">
+  <span><span class="tag">TLP:CLEAR</span> · public release</span>
+  <span>local only · 127.0.0.1</span>
+</div>
 <div class="masthead">
-  <span class="brand"><span class="status-dot"></span>mcp threat observatory</span>
-  <span class="right"><span>local collector</span><span class="tlp">127.0.0.1</span></span>
+  <span class="brand"><span class="status-dot"></span>[ mcp threat observatory ]</span>
+  <span class="right"><span>mode: passive</span><span class="cursor">█</span></span>
 </div>
 ${body}
 </main>
@@ -91,7 +98,7 @@ function formPage(token: string): string {
   return shell(
     "mcp-threat-observatory",
     `<div class="title-block">
-  <h1>Passive observation<span class="accent">console</span></h1>
+  <h1><span class="prompt">&gt;</span>Passive observation<span class="accent"> // console</span></h1>
   <p class="lede">Point it at an MCP endpoint. It performs what an ordinary client does before authenticating, and nothing more.</p>
 </div>
 <div class="console">
