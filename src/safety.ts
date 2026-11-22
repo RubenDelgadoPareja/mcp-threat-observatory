@@ -55,3 +55,15 @@ Pass --authorized (or set MCPOBS_AUTHORIZED=1) to confirm you have permission.
 export function isAuthorized(flag: boolean | undefined): boolean {
   return flag === true || process.env.MCPOBS_AUTHORIZED === "1";
 }
+
+export const BEHAVIOUR_NOTICE = `
+mcpobs behaviour EXECUTES the server you point it at. It starts the process,
+invokes every tool once, and records what the process tries to do.
+
+  Allowed:      code you wrote, or that you are authorised to execute
+  Not allowed:  an arbitrary package "to see what happens"
+
+The run uses a temporary HOME, synthetic credentials and, when available, a
+network namespace with no route. The hook is observation, not a security
+boundary: native code can bypass it. Pass --authorized to confirm.
+`.trim();

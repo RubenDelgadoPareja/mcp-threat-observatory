@@ -26,21 +26,33 @@ Detection tooling exists and is crowded. What is scarce is **provenance**: a
 record that says what was seen, when, from where, with what evidence, and what
 the observer could not see.
 
-## What exists today (v0.1)
+## What exists today (v0.2)
 
-- Passive collection over Streamable HTTP: `initialize`, `tools/list`,
-  `resources/list`, `prompts/list`. No tool is ever invoked.
+**Passive collection** (no code executed):
+
+- Streamable HTTP handshake: `initialize`, `tools/list`, `resources/list`,
+  `prompts/list`. No tool is ever invoked.
 - Nine checks across authentication posture, metadata, input schemas,
   interoperability and capability composition, mapped to the OWASP MCP Top 10.
-- Every finding carries `assertion: observed | inferred`, a confidence level, and
-  mandatory limitations.
 - Immutable snapshots, append-only index, SHA-256 digest per HTTP exchange.
 - Markdown, JSON and deterministic STIX 2.1 export, validated against the
   `stix2` reference implementation.
-- Analysis layer in Python: corpus distributions, drift detection, dataset
-  export, STIX validation.
-- Consent gate, 1 req/s rate limit, loopback-only plaintext HTTP.
-- 42 TypeScript tests (including end-to-end collection) and 45 Python tests.
+
+**Behavioural collection** (code executed, isolated):
+
+- Stdio server run inside a network namespace (`unshare -rn`), fail-closed when
+  unavailable.
+- Temporary `HOME` and seven synthetic canary credentials; environment rebuilt
+  from scratch so no real token is inherited.
+- Node API hook records destinations, DNS lookups, credential-file reads and
+  child processes. It is observation, not containment, and says so.
+- Every tool invoked once with arguments generated deterministically from its
+  JSON Schema — no model in the loop.
+- `BEHAV-001` canary exfiltration, `BEHAV-002` egress, `BEHAV-003` credential read.
+
+Every finding carries `assertion: observed | inferred`, a confidence level, and
+mandatory limitations. 69 TypeScript tests (including end-to-end collection and
+execution) and 45 Python tests.
 
 ## Why it is different
 
@@ -55,24 +67,31 @@ the observer could not see.
 4. **Verifiable records.** Any excerpt can be checked against the raw body digest
    months later.
 
-## What is next (v0.2, the part that matters)
+## What is next
 
-Static analysis reads metadata. Nobody records what an MCP server *does*.
+Static analysis reads metadata; behavioural collection now reads what a Node
+server does. Two gaps remain, in order of value:
 
-The next step is behavioural collection: run server code inside a container with
-no egress except a sinkhole, record every outbound attempt, and detect the
-`postmark-mcp` pattern — a package that behaves as advertised and also sends data
-somewhere else. That turns a metadata corpus into a behavioural one, which is the
-dataset that does not currently exist publicly.
+1. **Python servers.** FastMCP is the larger population. Python exposes
+   `sys.addaudithook`, which covers `socket.getaddrinfo`, `socket.connect`,
+   `open` and `subprocess.Popen` — the same evidence class, without native code.
+2. **Real containment.** `unshare -rn` isolates the network only. Filesystem and
+   child processes need a container or mount namespace. Until then the record
+   states the limitation rather than implying safety.
+
+After that: correlate the two modes into one view of a server, and publish a
+corpus-level report with the same evidence grading.
 
 ## Honest limits
 
-- The corpus published today is synthetic; no third-party server was contacted.
+- The corpus published today is synthetic; no third-party server was contacted
+  and no third-party package was executed.
 - No attribution. Ever. This produces observations, not adversary naming.
 - No security score. A single number would collapse exactly the distinction the
   project exists to preserve.
-- v0.1 cannot see behind a login boundary, cannot execute code, and cannot
-  confirm an exploit path.
+- Behavioural mode cannot see behind a login boundary, cannot contain the
+  filesystem, and cannot see native code.
+- A canary proves a value left the process; it does not prove intent.
 
 ## Why this is relevant to a threat-intelligence team
 

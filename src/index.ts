@@ -12,7 +12,23 @@ export { renderJson, parseSnapshot, snapshotFingerprint } from "./output/json.ts
 export { toStixBundle } from "./output/stix.ts";
 export { writeSnapshot, type WrittenSnapshot } from "./output/snapshot.ts";
 
-export { assertScannableTarget, isAuthorized, UnsafeTargetError, CONSENT_NOTICE } from "./safety.ts";
+export { assertScannableTarget, isAuthorized, UnsafeTargetError, CONSENT_NOTICE, BEHAVIOUR_NOTICE } from "./safety.ts";
+
+export { runBehaviour, canIsolateNetwork, type RunBehaviourOptions } from "./behaviour/runner.ts";
+export { analyseBehaviour, BEHAVIOUR_RULES, type BehaviourRule } from "./behaviour/analyser.ts";
+export { generateArguments, type GeneratedArguments } from "./behaviour/args.ts";
+export { createSandboxEnvironment, disposeSandboxEnvironment, findHookPath } from "./behaviour/canaries.ts";
+export { buildArtefact, writeBehaviourArtefact, artefactFingerprint, type BehaviourArtefact } from "./behaviour/artefact.ts";
+export { renderBehaviourMarkdown } from "./behaviour/report.ts";
+export type {
+  BehaviourEvent,
+  BehaviourRecord,
+  Canary,
+  IsolationMechanism,
+  NetworkIsolation,
+  ToolInvocation,
+} from "./behaviour/types.ts";
+export { BEHAVIOUR_SCHEMA_VERSION, isLoopback } from "./behaviour/types.ts";
 
 export {
   SCHEMA_VERSION,

@@ -21,7 +21,10 @@ shield — the responsibility is the operator's.
 
 ## 2. What "passive" means precisely
 
-The collector may send only these methods:
+This section applies to `mcpobs scan`. Behavioural collection is a separate mode
+with its own rules; see [2.1](#21-behavioural-mode).
+
+The passive collector may send only these methods:
 
 ```
 initialize
@@ -34,7 +37,7 @@ prompts/list
 plus unauthenticated `GET` requests to `/.well-known/oauth-protected-resource`
 and the URL advertised in a `WWW-Authenticate` challenge.
 
-The collector must never:
+The passive collector must never:
 
 - call a tool, or send `tools/call`;
 - send prompts, sampling requests, or completions;
@@ -43,9 +46,30 @@ The collector must never:
 - follow redirects away from the target host;
 - retry aggressively or distribute requests to evade rate limits.
 
-If a future version adds a sandbox (v0.2), it runs server code locally in
-isolation with a sinkhole for egress. It must never run third-party code on a
-network the operator does not control.
+## 2.1 Behavioural mode
+
+`mcpobs behaviour` executes a server, so it is not passive and the rules above do
+not apply. It has its own contract:
+
+| Control | Behaviour |
+| --- | --- |
+| Consent | Refuses without `--authorized` |
+| Network | `unshare -rn` (no route, no DNS); refuses to run if unavailable, unless `--allow-unisolated` |
+| Home directory | Temporary, seeded with canaries; the real `HOME` is never exposed |
+| Environment | Rebuilt from scratch: no inherited tokens or cloud credentials |
+| Tool calls | One per tool, with schema-generated arguments |
+| Scope | Code you wrote, or are authorised to execute |
+
+The observation hook is **not** a security boundary: native code can bypass it.
+The network namespace is the boundary, and it covers the network only. This is
+stated in every artefact's `limitations`.
+
+Behavioural collection must never:
+
+- run a package you have not authored or been authorised to execute;
+- run against a production account or with real credentials;
+- be used to obtain a third party's data;
+- publish a payload or a victim's content.
 
 ## 3. Request hygiene
 

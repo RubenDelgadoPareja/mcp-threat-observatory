@@ -94,7 +94,37 @@ snapshots/
 The index is the only mutable-adjacent artifact, and it is append-only. Rewriting
 history is how a dataset loses its value.
 
-## 5. STIX 2.1 mapping
+## 6. Behavioural artefacts
+
+A different lineage from snapshots, because it answers a different question and
+carries different ethics.
+
+```json
+{
+  "schemaVersion": "1",
+  "kind": "behaviour-artefact",
+  "generatedAt": "…",
+  "record": { "kind": "behaviour", "tools": [ … ], "events": [ … ], "limitations": [ … ] },
+  "findings": [ … ],
+  "summary": { "total": 4, "bySeverity": { … }, "egressAttempts": 1, "canaryReads": 2, "canarySends": 1 }
+}
+```
+
+Key differences from a snapshot:
+
+| Snapshot | Behaviour artefact |
+| --- | --- |
+| `probe`, passive | `record`, executed |
+| `null` tools = unknown | `tools` = what was invoked |
+| No credentials involved | Canaries planted and tracked |
+| Network side effects possible | Network isolated by default |
+| `AUTH-*`, `TOOL-*`, `PROTO-*`, `RISK-*` | `BEHAV-*` |
+
+The passive schema is untouched, so v0.1 consumers keep working. `BEHAV-*`
+findings reuse the same `Finding` shape, including `assertion`, `confidence`
+and `limitations`.
+
+## 7. STIX 2.1 mapping
 
 | STIX object | Maps to |
 | --- | --- |

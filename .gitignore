@@ -15,3 +15,10 @@ snapshots/
 .DS_Store
 .idea/
 .vscode/
+
+# Agent skill installs (global config lives in ~/.agents)
+.agents/
+skills-lock.json
+
+# Behavioural artefacts
+/behaviour/

@@ -3,7 +3,9 @@
 > Passive, evidence-graded observation of Model Context Protocol endpoints —
 > and the raw material for longitudinal threat intelligence on the MCP ecosystem.
 
-**Status: v0.1.** Passive collection only. No sandbox, no clustering, no tool invocation.
+**Status: v0.2.** Two modes: passive observation (no code executed) and
+behavioural collection (server executed inside a network namespace, with
+canary credentials). No clustering yet, and no attribution ever.
 See [ROADMAP](docs/ROADMAP.md) for what is deliberately missing and why.
 
 ---
@@ -27,7 +29,10 @@ it is a provenance layer.
 
 ## What it does
 
-One command performs what an ordinary MCP client does, and nothing more:
+Two modes, two contracts.
+
+**Passive (`mcpobs scan`)** performs what an ordinary MCP client does, and
+nothing more:
 
 ```
 initialize → notifications/initialized → tools/list → resources/list → prompts/list
@@ -35,10 +40,18 @@ initialize → notifications/initialized → tools/list → resources/list → p
 
 No tool is invoked. No payload is sent. At most one request per second.
 
-From that handshake it derives nine checks across authentication posture,
-metadata quality, input-schema strictness, interoperability semantics and
-capability composition — each reported as either **observed** or **inferred**,
-with an explicit confidence level and an explicit list of limitations.
+**Behavioural (`mcpobs behaviour`)** executes a stdio server inside a network
+namespace with no route, a temporary `HOME` and seven canary credentials, then
+invokes every tool once with arguments generated deterministically from its
+schema. It records network destinations, DNS lookups, credential-file reads and
+child processes. It is a separate command with its own consent gate because it
+runs code.
+
+From those two records it derives twelve checks: nine passive (authentication
+posture, metadata quality, schema strictness, interoperability, capability
+composition) and three behavioural (`BEHAV-001`…`003`). Each is reported as
+either **observed** or **inferred**, with an explicit confidence level and an
+explicit list of limitations.
 
 ## Two languages, one reason
 
@@ -76,6 +89,23 @@ node dist/cli.js scan --from targets.txt   # batch, one target per line
 node dist/cli.js report <snapshot.json> --format md|json|stix
 node dist/cli.js inspect <snapshot.json>   # provenance and integrity details
 ```
+
+### Behavioural collection
+
+```bash
+# Executes the fixture inside a network namespace with canary credentials
+node dist/cli.js behaviour --authorized -- node examples/behaviour/exfil-server.mjs
+
+# Negative control: a server that does exactly what it says
+node dist/cli.js behaviour --authorized -- node examples/behaviour/clean-server.mjs
+```
+
+The first produces `BEHAV-001` (a canary written to `smtp.collect.example.test:587`),
+`BEHAV-003` for the credential files it read, and `BEHAV-002` for the egress
+attempt. The second produces nothing. Artefacts land in `behaviour/YYYY-MM-DD/`.
+
+Requires `unshare` with user namespaces. Without it the command refuses to run;
+`--allow-unisolated` exists for code you wrote yourself.
 
 Set `MCPOBS_CONTACT` to a URL or address before collecting. Records without a
 contact are recorded as weaker provenance, on purpose.
@@ -128,11 +158,12 @@ objects, TLP:CLEAR, deterministic UUIDv5 identifiers).
 
 ## What this does **not** do
 
-- It does not execute server code. Behaviour, exfiltration and rug pulls are invisible to it. That is v0.2.
+- Behavioural mode does not contain the filesystem or child processes: only the network. That is stated in every artefact.
+- It does not see behaviour a Node API hook cannot observe: native addons, other runtimes, spawned non-Node processes.
 - It does not authenticate, so everything behind a login boundary is unobserved.
 - It does not assess publishers, dependencies or intent.
 - It does not attribute activity to an adversary. Ever.
-- It does not call tools, so it cannot confirm an exploit path.
+- It does not prove an exploit path.
 
 ## Checks
 
@@ -147,6 +178,9 @@ objects, TLP:CLEAR, deterministic UUIDv5 identifiers).
 | TOOL-003 | Input schemas accept unconstrained input | MCP05, MCP02 |
 | PROTO-001 | Discovery methods unimplemented rather than empty | — |
 | RISK-001 | Reader + untrusted input + egress coexist | MCP02, MCP06 |
+| BEHAV-001 | Canary value written to an external destination | MCP01 |
+| BEHAV-002 | Outbound connection to a non-loopback destination | — |
+| BEHAV-003 | Canary credential file was read | MCP01 |
 
 Rationale, false-positive behaviour and interpretation for each check:
 [docs/CHECKS.md](docs/CHECKS.md).
@@ -156,6 +190,7 @@ Rationale, false-positive behaviour and interpretation for each check:
 - [Project brief](docs/BRIEF.md) — one page, for forwarding
 - [Methodology and evidence grading](docs/METHODOLOGY.md)
 - [Check catalogue](docs/CHECKS.md)
+- [Behavioural collection](docs/BEHAVIOUR.md)
 - [Ethics and authorisation](docs/ETHICS.md)
 - [Disclosure policy](docs/DISCLOSURE.md)
 - [Data model and STIX mapping](docs/DATA-MODEL.md)

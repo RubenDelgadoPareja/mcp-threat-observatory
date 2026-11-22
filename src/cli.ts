@@ -3,11 +3,21 @@ import { Command } from "commander";
 import { buildSnapshot } from "./analyze.ts";
 import { ALL_CHECKS } from "./checks/index.ts";
 import { probeServer } from "./collect/probe.ts";
+import { analyseBehaviour, BEHAVIOUR_RULES } from "./behaviour/analyser.ts";
+import { buildArtefact, writeBehaviourArtefact } from "./behaviour/artefact.ts";
+import { renderBehaviourMarkdown } from "./behaviour/report.ts";
+import { runBehaviour } from "./behaviour/runner.ts";
 import { snapshotFingerprint, parseSnapshot, renderJson } from "./output/json.ts";
 import { renderMarkdown } from "./output/markdown.ts";
 import { writeSnapshot } from "./output/snapshot.ts";
 import { toStixBundle } from "./output/stix.ts";
-import { CONSENT_NOTICE, assertScannableTarget, isAuthorized, UnsafeTargetError } from "./safety.ts";
+import {
+  BEHAVIOUR_NOTICE,
+  CONSENT_NOTICE,
+  assertScannableTarget,
+  isAuthorized,
+  UnsafeTargetError,
+} from "./safety.ts";
 import { VERSION } from "./version.ts";
 import type { Snapshot } from "./model.ts";
 
@@ -39,6 +49,12 @@ program
     }
     console.log("");
     console.log(`${rows.length} checks. A check reports a signal for review, not a verdict.`);
+    console.log("");
+    console.log("Behavioural checks (mcpobs behaviour)");
+    for (const rule of BEHAVIOUR_RULES) {
+      console.log(`  ${rule.id.padEnd(width)}  ${rule.title}`);
+      console.log(`  ${" ".repeat(width)}  OWASP: ${rule.owasp.length ? rule.owasp.join(", ") : "—"} · ${rule.taxonomy.join(", ")}`);
+    }
     console.log("");
   });
 
@@ -117,6 +133,55 @@ program
     }
 
     if (failed > 0) process.exitCode = 1;
+  });
+
+program
+  .command("behaviour")
+  .argument("<command...>", "command that starts a stdio MCP server")
+  .description("Execute a server in isolation and record what it does")
+  .option("--authorized", "confirm you wrote or are authorised to execute this code")
+  .option("--allow-unisolated", "run without a network namespace (unsafe, own code only)")
+  .option("--out <dir>", "artefact directory", "behaviour")
+  .option("--timeout <ms>", "wall-clock budget for the whole run", "60000")
+  .option("--tool-timeout <ms>", "budget per tool call", "5000")
+  .option("--seed <n>", "deterministic argument seed", "1")
+  .option("--json", "print the artefact JSON instead of the report")
+  .option("--keep-workspace", "keep the temporary sandbox for inspection")
+  .action(async (command: string[], options: Record<string, string | boolean | undefined>) => {
+    if (!isAuthorized(options.authorized === true)) {
+      console.error(BEHAVIOUR_NOTICE);
+      process.exit(2);
+    }
+    if (!Array.isArray(command) || command.length === 0) {
+      console.error("No command. Usage: mcpobs behaviour -- <command...>");
+      process.exit(2);
+    }
+
+    const outDir = typeof options.out === "string" ? options.out : "behaviour";
+    try {
+      const record = await runBehaviour({
+        command,
+        timeoutMs: Number(options.timeout ?? 60_000),
+        toolTimeoutMs: Number(options.toolTimeout ?? 5_000),
+        allowUnisolated: options.allowUnisolated === true,
+        seed: Number(options.seed ?? 1),
+        keepWorkspace: options.keepWorkspace === true,
+      });
+      const findings = analyseBehaviour(record);
+      const artefact = buildArtefact(record, findings);
+      const written = await writeBehaviourArtefact(outDir, artefact);
+
+      console.log(
+        options.json === true ? JSON.stringify(artefact, null, 2) : renderBehaviourMarkdown(record, findings),
+      );
+      console.error(
+        `[${written.fingerprint.slice(0, 8)}] ${record.target.command.join(" ")} → ` +
+          `${findings.length} finding(s) · ${written.file}`,
+      );
+    } catch (error) {
+      console.error(`behaviour failed: ${error instanceof Error ? error.message : String(error)}`);
+      process.exitCode = 1;
+    }
   });
 
 program

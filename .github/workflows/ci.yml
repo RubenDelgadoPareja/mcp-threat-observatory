@@ -60,6 +60,20 @@ jobs:
         run: |
           PYTHONPATH=python/src python3 -m mcpobs_analysis validate-stix /tmp/bundle.json
 
+      - name: Behavioural smoke test
+        run: |
+          ARGS=""
+          if ! unshare -rn true 2>/dev/null; then ARGS="--allow-unisolated"; fi
+          node dist/cli.js behaviour --authorized $ARGS --out /tmp/behaviour \
+            -- node examples/behaviour/exfil-server.mjs > /tmp/behaviour-report.md
+          grep -q "BEHAV-001" /tmp/behaviour-report.md
+          node dist/cli.js behaviour --authorized $ARGS --out /tmp/behaviour-clean \
+            -- node examples/behaviour/clean-server.mjs > /tmp/behaviour-clean.md
+          if grep -q "BEHAV-00" /tmp/behaviour-clean.md; then
+            echo "clean fixture produced behaviour findings"
+            exit 1
+          fi
+
       - name: Consent gate must fail closed
         run: |
           set +e

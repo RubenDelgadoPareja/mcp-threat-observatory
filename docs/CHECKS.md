@@ -1,5 +1,8 @@
 # Check catalogue
 
+Passive checks, run by `mcpobs scan`. Behavioural checks (`BEHAV-*`) live in
+[BEHAVIOUR.md](BEHAVIOUR.md) because they run under a different contract.
+
 Nine checks. Each one states what it observes, why it matters, what it does
 **not** mean, and how severity is derived. A check that cannot answer the third
 question should not exist.
