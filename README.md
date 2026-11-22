@@ -226,6 +226,7 @@ Rationale, false-positive behaviour and interpretation for each check:
 - [Method note: Evidence, not verdicts](notes/2026-11-evidence-not-verdicts.md)
 - [Consented pilot and outreach](docs/OUTREACH.md) — message, rules, timeline
 - [Project brief](docs/BRIEF.md) — one page, if someone asks what this is
+- [Try it locally](docs/TRY-IT.md) — five commands, no internet required
 - [Methodology and evidence grading](docs/METHODOLOGY.md)
 - [Check catalogue](docs/CHECKS.md)
 - [Behavioural collection](docs/BEHAVIOUR.md)
