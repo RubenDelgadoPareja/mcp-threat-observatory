@@ -7,12 +7,13 @@ export { analyze, buildSnapshot, summarize, type AnalysisResult } from "./analyz
 export { ALL_CHECKS, getCheck, severityRank, type Check } from "./checks/index.ts";
 export { classifyCapabilities, type CapabilityProfile } from "./checks/capabilities.ts";
 
-export { renderMarkdown } from "./output/markdown.ts";
-export { renderJson, parseSnapshot, snapshotFingerprint } from "./output/json.ts";
+export { renderMarkdown } from "./output/markdown.ts";export { renderJson, parseSnapshot, snapshotFingerprint } from "./output/json.ts";
 export { toStixBundle } from "./output/stix.ts";
 export { writeSnapshot, type WrittenSnapshot } from "./output/snapshot.ts";
 
 export { assertScannableTarget, isAuthorized, UnsafeTargetError, CONSENT_NOTICE, BEHAVIOUR_NOTICE } from "./safety.ts";
+
+export { diffSnapshots, renderDrift, toolSignature, type DriftReport, type ToolChange } from "./drift.ts";
 
 export { runBehaviour, canIsolateNetwork, type RunBehaviourOptions } from "./behaviour/runner.ts";
 export { analyseBehaviour, BEHAVIOUR_RULES, type BehaviourRule } from "./behaviour/analyser.ts";

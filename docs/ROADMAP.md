@@ -41,13 +41,13 @@ namespace's own (absent) route; no publication of payloads.
 
 ## v0.3 — Longitudinal drift
 
-- [ ] Compare snapshots by fingerprint across days
-- [ ] Flag description, schema and annotation changes (rug-pull detection)
+- [x] Compare two snapshots by fingerprint and by canonical tool definition
+- [x] Detect description, schema and annotation changes
+- [x] `DRIFT-001` definition changed, `DRIFT-002` safety hint relaxed
+- [x] Refuse to compare different targets instead of producing a meaningless diff
+- [x] `--fail-on-change` for use as a release gate
+- [ ] Drift feed across a whole corpus, with a per-target history
 - [ ] Distinguish "server changed" from "collector changed"
-- [ ] Publish a drift feed per target
-
-**Acceptance:** an injected change to a local fixture is detected within one
-collection cycle, with a diff that quotes both versions.
 
 ## v0.4 — Infrastructure and publisher clustering
 

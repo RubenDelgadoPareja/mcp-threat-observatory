@@ -7,6 +7,7 @@ import { analyseBehaviour, BEHAVIOUR_RULES } from "./behaviour/analyser.ts";
 import { buildArtefact, writeBehaviourArtefact } from "./behaviour/artefact.ts";
 import { renderBehaviourMarkdown } from "./behaviour/report.ts";
 import { runBehaviour } from "./behaviour/runner.ts";
+import { diffSnapshots, renderDrift } from "./drift.ts";
 import { snapshotFingerprint, parseSnapshot, renderJson } from "./output/json.ts";
 import { renderMarkdown } from "./output/markdown.ts";
 import { writeSnapshot } from "./output/snapshot.ts";
@@ -229,6 +230,38 @@ program
         2,
       ),
     );
+  });
+
+program
+  .command("drift")
+  .argument("<previous>", "earlier snapshot JSON")
+  .argument("<current>", "later snapshot JSON")
+  .description("Compare two snapshots of the same target")
+  .option("--json", "print the report as JSON")
+  .option("--fail-on-change", "exit 1 when anything changed (use as a CI gate)")
+  .action(async (previousFile: string, currentFile: string, options: Record<string, boolean | undefined>) => {
+    try {
+      const previous = parseSnapshot(await readFile(previousFile, "utf8"));
+      const current = parseSnapshot(await readFile(currentFile, "utf8"));
+
+      if (previous.probe.target !== current.probe.target) {
+        console.error(
+          `drift: different targets (${previous.probe.target} vs ${current.probe.target}). ` +
+            "Finding fingerprints are per-target, so a comparison would be meaningless.",
+        );
+        process.exit(2);
+      }
+
+      const report = diffSnapshots(previous, current, { previous: previousFile, current: currentFile });
+      console.log(options.json === true ? JSON.stringify(report, null, 2) : renderDrift(report));
+
+      if (options.failOnChange === true && report.changed) {
+        process.exitCode = 1;
+      }
+    } catch (error) {
+      console.error(`drift failed: ${error instanceof Error ? error.message : String(error)}`);
+      process.exitCode = 2;
+    }
   });
 
 await program.parseAsync(process.argv);

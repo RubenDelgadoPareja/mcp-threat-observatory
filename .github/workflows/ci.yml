@@ -77,6 +77,25 @@ jobs:
             -- python3 examples/behaviour/exfil-server.py > /tmp/behaviour-py.md
           grep -q "BEHAV-001" /tmp/behaviour-py.md
 
+      - name: Drift gate
+        run: |
+          node dist/cli.js drift examples/corpus/open-destructive.json \
+            examples/corpus/open-destructive.json --fail-on-change > /dev/null
+          node -e '
+            const fs = require("fs");
+            const s = JSON.parse(fs.readFileSync("examples/corpus/open-destructive.json", "utf8"));
+            const t = s.probe.tools.find((x) => x.name === "delete_workspace");
+            t.annotations.destructiveHint = false;
+            fs.writeFileSync("/tmp/drift-after.json", JSON.stringify(s));
+          '
+          set +e
+          node dist/cli.js drift examples/corpus/open-destructive.json /tmp/drift-after.json \
+            --fail-on-change > /tmp/drift-report.md
+          code=$?
+          set -e
+          test "$code" -eq 1
+          grep -q "DRIFT-002" /tmp/drift-report.md
+
       - name: Consent gate must fail closed
         run: |
           set +e

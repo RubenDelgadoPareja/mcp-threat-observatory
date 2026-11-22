@@ -109,6 +109,8 @@ node dist/cli.js scan <url> --stix         # STIX 2.1 bundle
 node dist/cli.js scan --from targets.txt   # batch, one target per line
 node dist/cli.js report <snapshot.json> --format md|json|stix
 node dist/cli.js inspect <snapshot.json>   # provenance and integrity details
+node dist/cli.js drift a.json b.json       # what changed between two records
+node dist/cli.js drift a.json b.json --fail-on-change   # CI gate, exit 1
 ```
 
 ### Behavioural collection
@@ -204,7 +206,8 @@ objects, TLP:CLEAR, deterministic UUIDv5 identifiers).
 | BEHAV-003 | Canary credential file was read | MCP01 |
 
 Rationale, false-positive behaviour and interpretation for each check:
-[docs/CHECKS.md](docs/CHECKS.md).
+[docs/CHECKS.md](docs/CHECKS.md). Drift rules (`DRIFT-001`, `DRIFT-002`) are in
+[docs/DRIFT.md](docs/DRIFT.md).
 
 ## Documentation
 
@@ -214,6 +217,7 @@ Rationale, false-positive behaviour and interpretation for each check:
 - [Methodology and evidence grading](docs/METHODOLOGY.md)
 - [Check catalogue](docs/CHECKS.md)
 - [Behavioural collection](docs/BEHAVIOUR.md)
+- [Drift and the CI gate](docs/DRIFT.md)
 - [Ethics and authorisation](docs/ETHICS.md)
 - [Disclosure policy](docs/DISCLOSURE.md)
 - [Data model and STIX mapping](docs/DATA-MODEL.md)
