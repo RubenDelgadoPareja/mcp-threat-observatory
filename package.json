@@ -3,6 +3,15 @@
   "version": "0.4.0",
   "description": "Passive, evidence-graded telemetry for the Model Context Protocol server ecosystem.",
   "license": "MIT",
+  "author": "Ruben Delgado Pareja (https://github.com/RubenDelgadoPareja)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RubenDelgadoPareja/mcp-threat-observatory.git"
+  },
+  "homepage": "https://github.com/RubenDelgadoPareja/mcp-threat-observatory#readme",
+  "bugs": {
+    "url": "https://github.com/RubenDelgadoPareja/mcp-threat-observatory/issues"
+  },
   "type": "module",
   "bin": {
     "mcpobs": "./dist/cli.js"
