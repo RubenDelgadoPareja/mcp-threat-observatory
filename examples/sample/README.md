@@ -8,6 +8,7 @@ third-party server was contacted to produce these files.
 | `snapshot.json` | The immutable record: probe, findings, summary |
 | `report.md` | Human rendering, with observation/inference/limitations separated |
 | `bundle.stix.json` | STIX 2.1 bundle (21 objects, TLP:CLEAR) |
+| `report.html` | Self-contained HTML report — open it in a browser |
 
 Reproduce them:
 

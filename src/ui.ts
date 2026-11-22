@@ -1,9 +1,9 @@
 import { randomBytes } from "node:crypto";
-import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { createServer, type IncomingMessage } from "node:http";
 import type { AddressInfo } from "node:net";
 import { buildSnapshot } from "./analyze.ts";
 import { probeServer } from "./collect/probe.ts";
-import { renderSnapshotHtml } from "./output/html.ts";
+import { BASE_CSS, renderSnapshotHtml } from "./output/html.ts";
 import { writeSnapshot } from "./output/snapshot.ts";
 import { assertScannableTarget, UnsafeTargetError } from "./safety.ts";
 
@@ -20,82 +20,129 @@ export interface UiServer {
   close: () => Promise<void>;
 }
 
-const FORM_CSS = `
-  :root { color-scheme: light dark; --fg:#1c1d21; --muted:#5d6068; --bg:#fbfbfc; --card:#fff;
-          --line:#e4e5ea; --accent:#2f5fd0; }
-  @media (prefers-color-scheme: dark) {
-    :root { --fg:#e8e9ee; --muted:#a2a6b3; --bg:#16171b; --card:#1d1f25; --line:#2c2f38; --accent:#8ba8ff; }
+const UI_CSS = `
+  .console { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,.85fr); gap:1rem; margin-top:1.5rem; }
+  @media (max-width:860px) { .console { grid-template-columns:1fr; } }
+  .panel {
+    border:1px solid var(--line); border-radius:var(--radius);
+    background:linear-gradient(180deg,var(--panel-2),var(--panel)); padding:1.1rem 1.15rem;
   }
-  * { box-sizing:border-box; }
-  body { margin:0; padding:3rem 1.25rem; background:var(--bg); color:var(--fg);
-         font:16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width:36rem; margin:0 auto; }
-  h1 { font-size:1.4rem; margin:0 0 .4rem; }
-  p.sub { color:var(--muted); margin:0 0 1.75rem; font-size:.95rem; }
-  form { background:var(--card); border:1px solid var(--line); border-radius:.7rem; padding:1.25rem; }
-  label { display:block; font-size:.85rem; font-weight:600; margin:0 0 .35rem; }
-  input[type=url] { width:100%; padding:.6rem .7rem; font:inherit; color:inherit; background:transparent;
-                     border:1px solid var(--line); border-radius:.45rem; }
-  .check { display:flex; gap:.55rem; align-items:flex-start; margin:1rem 0 1.25rem; font-size:.88rem;
-           color:var(--muted); font-weight:400; }
-  .check input { margin-top:.25rem; }
-  button { font:inherit; font-weight:600; padding:.6rem 1rem; border-radius:.45rem; border:1px solid var(--accent);
-           background:var(--accent); color:#fff; cursor:pointer; }
-  button:disabled { opacity:.6; cursor:progress; }
-  .note { margin-top:1.5rem; color:var(--muted); font-size:.85rem; }
-  .hint { margin:.45rem 0 .9rem; color:var(--muted); font-size:.82rem; }
-  code { font-family:ui-monospace, Menlo, monospace; background:color-mix(in srgb, var(--fg) 8%, transparent);
-         padding:.1rem .3rem; border-radius:.25rem; }
+  .mono-label {
+    display:block; font-family:var(--mono); font-size:.66rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 .45rem;
+  }
+  .input-row {
+    display:flex; align-items:center; gap:.6rem; padding:.1rem .75rem;
+    border:1px solid var(--line-2); border-radius:.4rem; background:var(--bg-2);
+  }
+  .input-row:focus-within {
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+  .prompt { font-family:var(--mono); color:var(--accent); }
+  input[type=url] {
+    flex:1; min-width:0; border:0; outline:none; background:transparent; color:var(--fg);
+    font:inherit; font-family:var(--mono); font-size:.9rem; padding:.65rem 0;
+  }
+  .hint { margin:.5rem 0 1rem; color:var(--faint); font-size:.82rem; }
+  .check {
+    display:flex; gap:.6rem; align-items:flex-start; margin:0 0 1.15rem;
+    color:var(--muted); font-size:.86rem; line-height:1.5;
+  }
+  .check input { margin-top:.22rem; accent-color:var(--accent); }
+  button {
+    font:inherit; font-weight:650; font-size:.9rem; letter-spacing:.02em;
+    padding:.62rem 1.05rem; border-radius:.4rem; cursor:pointer;
+    border:1px solid var(--accent); background:var(--accent); color:var(--accent-fg);
+  }
+  button:hover { filter:brightness(1.08); }
+  button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .facts { font-size:.85rem; color:var(--muted); }
+  .facts ul { margin:.2rem 0 0 1rem; padding:0; }
+  .facts li { margin:.35rem 0; }
+  .facts code { font-size:.8rem; }
+  .back { display:inline-block; margin-top:1.25rem; font-family:var(--mono); font-size:.82rem; color:var(--accent); }
 `;
 
-function formPage(token: string): string {
+function shell(title: string, body: string): string {
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>mcp-threat-observatory</title>
-<style>${FORM_CSS}</style>
+<meta name="referrer" content="no-referrer">
+<title>${escape(title)}</title>
+<style>${BASE_CSS}${UI_CSS}</style>
 </head>
 <body>
 <main>
-  <h1>Passive MCP observation</h1>
-  <p class="sub">What an ordinary MCP client sees before authenticating. No tool is invoked.</p>
-  <form method="POST" action="/scan?token=${encodeURIComponent(token)}">
-    <label for="url">MCP endpoint</label>
-    <input id="url" name="url" type="url" required placeholder="https://example.com/mcp" autofocus>
-    <p class="hint">
-      Paste the endpoint itself (usually ending in <code>/mcp</code>). Do not open it in a tab:
-      an MCP server answers protocol requests, not web pages.
-    </p>
-    <label class="check">
-      <input type="checkbox" name="attest" value="yes" required>
-      <span>I operate this server, or I have written permission to observe it.</span>
-    </label>
-    <button type="submit">Scan</button>
-  </form>
-  <p class="note">
-    The scan runs on this machine, not on a remote service. It sends an unauthenticated
-    <code>initialize</code>, <code>tools/list</code>, <code>resources/list</code> and
-    <code>prompts/list</code>, at most one request per second. It never calls a tool.
-  </p>
+<div class="masthead">
+  <span class="brand"><span class="status-dot"></span>mcp threat observatory</span>
+  <span class="right"><span>local collector</span><span class="tlp">127.0.0.1</span></span>
+</div>
+${body}
 </main>
 </body>
 </html>
 `;
 }
 
+function formPage(token: string): string {
+  return shell(
+    "mcp-threat-observatory",
+    `<div class="title-block">
+  <h1>Passive observation<span class="accent">console</span></h1>
+  <p class="lede">Point it at an MCP endpoint. It performs what an ordinary client does before authenticating, and nothing more.</p>
+</div>
+<div class="console">
+  <div class="panel">
+    <form method="POST" action="/scan?token=${encodeURIComponent(token)}">
+      <label class="mono-label" for="url">target endpoint</label>
+      <div class="input-row">
+        <span class="prompt">$</span>
+        <input id="url" name="url" type="url" required placeholder="https://example.com/mcp" autofocus spellcheck="false">
+      </div>
+      <p class="hint">Paste the endpoint itself (usually ending in <code>/mcp</code>). Do not open it in a tab: an MCP server answers protocol requests, not web pages.</p>
+      <label class="check">
+        <input type="checkbox" name="attest" value="yes" required>
+        <span>I operate this server, or I have written permission to observe it.</span>
+      </label>
+      <button type="submit">Run passive scan</button>
+    </form>
+  </div>
+  <aside class="panel facts">
+    <p class="mono-label">what runs</p>
+    <ul>
+      <li><code>initialize</code>, <code>tools/list</code>, <code>resources/list</code>, <code>prompts/list</code></li>
+      <li>No tool is invoked. No payload is sent.</li>
+      <li>At most one request per second.</li>
+      <li>Runs on this machine, not on a remote service.</li>
+    </ul>
+  </aside>
+</div>`,
+  );
+}
+
 function errorPage(status: number, message: string, token?: string): string {
-  const back = token ? `<p><a href="/?token=${encodeURIComponent(token)}">Back</a></p>` : "";
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>${status}</title>
-<style>${FORM_CSS}</style></head>
-<body><main><h1>${status}</h1><p class="sub">${escape(message)}</p>${back}</main></body></html>
-`;
+  const back = token
+    ? `<a class="back" href="/?token=${encodeURIComponent(token)}">← back to the console</a>`
+    : "";
+  return shell(
+    `${status}`,
+    `<div class="title-block">
+  <h1>${status}<span class="accent">refused</span></h1>
+  <p class="lede">${escape(message)}</p>
+</div>
+${back}`,
+  );
 }
 
 function escape(value: string): string {
-  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 async function readForm(req: IncomingMessage, limit = 8 * 1024): Promise<URLSearchParams> {
@@ -138,7 +185,9 @@ export async function startUiServer(options: UiOptions = {}): Promise<UiServer> 
     }
 
     if (tokenFrom(req) !== token) {
-      res.writeHead(403, { "content-type": "text/html; charset=utf-8" }).end(errorPage(403, "Invalid or missing token."));
+      res.writeHead(403, { "content-type": "text/html; charset=utf-8" }).end(
+        errorPage(403, "Invalid or missing token. Use the full URL printed by the CLI."),
+      );
       return;
     }
 
@@ -159,7 +208,9 @@ export async function startUiServer(options: UiOptions = {}): Promise<UiServer> 
     }
 
     if (busy) {
-      res.writeHead(429, { "content-type": "text/html; charset=utf-8" }).end(errorPage(429, "A scan is already running.", token));
+      res.writeHead(429, { "content-type": "text/html; charset=utf-8" }).end(
+        errorPage(429, "A scan is already running. Wait for it to finish.", token),
+      );
       return;
     }
 

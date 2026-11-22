@@ -89,7 +89,8 @@ describe("local ui", () => {
     const response = await fetch(ui.url);
     expect(response.status).toBe(200);
     const html = await response.text();
-    expect(html).toContain("Passive MCP observation");
+    expect(html).toContain("Passive observation");
+    expect(html).toContain("target endpoint");
     expect(html).toContain("I operate this server");
   });
 

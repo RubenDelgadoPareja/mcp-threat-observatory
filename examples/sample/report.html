@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Passive observation — 127.0.0.1:8787</title>
+<style>
+  :root {
+    color-scheme: dark light;
+    --bg:#0b0d10; --bg-2:#0e1116; --panel:#12151b; --panel-2:#171b23;
+    --line:#232936; --line-2:#2f3646;
+    --fg:#e7eaf0; --muted:#98a0b3; --faint:#6c7488;
+    --accent:#4cc2ff; --accent-dim:#1d6b8f; --accent-fg:#06121a;
+    --critical:#ff6b7a; --high:#ff9a5c; --medium:#ffd166; --low:#5eead4; --info:#98a0b3;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --radius:.55rem;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg:#f6f7f9; --bg-2:#eef0f4; --panel:#ffffff; --panel-2:#f9fafb;
+      --line:#dfe3ea; --line-2:#c9cfda;
+      --fg:#15181e; --muted:#5b6375; --faint:#8790a3;
+      --accent:#0b6fa4; --accent-dim:#9fd0e6; --accent-fg:#ffffff;
+      --critical:#b3122a; --high:#b4471a; --medium:#8a6100; --low:#0f766e; --info:#5b6375;
+    }
+  }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body {
+    margin:0; min-height:100vh; background:var(--bg); color:var(--fg);
+    font:16px/1.65 var(--sans);
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--line) 42%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--line) 42%, transparent) 1px, transparent 1px);
+    background-size:64px 64px, 64px 64px;
+    background-position:-1px -1px;
+  }
+  body::before {
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--bg) 55%, transparent), var(--bg) 70%);
+  }
+  main { position:relative; z-index:1; max-width:74rem; margin:0 auto; padding:2rem 1.25rem 4rem; }
+  .mono { font-family:var(--mono); font-variant-numeric:tabular-nums; }
+
+  /* ---- masthead ---------------------------------------------------------- */
+  .masthead {
+    display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    padding:.55rem .85rem; border:1px solid var(--line); border-radius:var(--radius);
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    font-family:var(--mono); font-size:.73rem; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--muted);
+  }
+  .masthead .brand { display:flex; align-items:center; gap:.55rem; color:var(--fg); letter-spacing:.16em; }
+  .status-dot {
+    width:.5rem; height:.5rem; border-radius:50%; background:var(--low);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--low) 18%, transparent);
+    flex:0 0 auto;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .status-dot { animation:pulse 3.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+  }
+  .masthead .right { display:flex; align-items:center; gap:1rem; }
+  .tlp { border:1px solid var(--line-2); border-radius:.3rem; padding:.12rem .45rem; color:var(--muted); }
+
+  /* ---- title ------------------------------------------------------------- */
+  .title-block { margin:1.75rem 0 1.5rem; }
+  h1 { margin:0; font-size:clamp(1.35rem,2.4vw,1.85rem); line-height:1.25; letter-spacing:-.015em; font-weight:650; }
+  h1 .accent { color:var(--accent); }
+  .lede { margin:.45rem 0 0; color:var(--muted); font-size:.98rem; max-width:60ch; }
+
+  /* ---- kpis -------------------------------------------------------------- */
+  .kpis {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(11.5rem,1fr));
+    border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+    background:var(--panel);
+  }
+  .kpi { padding:.7rem .85rem; border-right:1px solid var(--line); }
+  .kpi:last-child { border-right:0; }
+  .kpi-label {
+    display:block; font-family:var(--mono); font-size:.66rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--faint); margin-bottom:.2rem;
+  }
+  .kpi-value {
+    display:block; font-family:var(--mono); font-size:.9rem; color:var(--fg);
+    overflow-wrap:anywhere;
+  }
+
+  /* ---- severity bar ------------------------------------------------------ */
+  .severity { margin:1.5rem 0 2rem; }
+  .bar {
+    display:flex; height:.5rem; border-radius:999px; overflow:hidden;
+    background:var(--bg-2); border:1px solid var(--line);
+  }
+  .bar .seg { display:block; height:100%; }
+  .bar .seg.critical { background:var(--critical); }
+  .bar .seg.high { background:var(--high); }
+  .bar .seg.medium { background:var(--medium); }
+  .bar .seg.low { background:var(--low); }
+  .bar .seg.info { background:var(--info); }
+  .bar .empty { width:100%; background:linear-gradient(90deg,var(--line),var(--bg-2)); }
+  .legend {
+    display:flex; flex-wrap:wrap; gap:.35rem 1.1rem; margin-top:.65rem;
+    font-family:var(--mono); font-size:.74rem; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--muted);
+  }
+  .legend b { color:var(--fg); font-weight:600; }
+  .legend .dot { display:inline-block; width:.5rem; height:.5rem; border-radius:50%; margin-right:.35rem; vertical-align:middle; }
+  .dot.critical{background:var(--critical)} .dot.high{background:var(--high)} .dot.medium{background:var(--medium)}
+  .dot.low{background:var(--low)} .dot.info{background:var(--info)}
+
+  /* ---- findings ---------------------------------------------------------- */
+  .section-label {
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--faint); margin:0 0 .7rem;
+  }
+  details.finding {
+    border:1px solid var(--line); border-left:3px solid var(--faint);
+    border-radius:.4rem; background:var(--panel); margin:0 0 .55rem; overflow:hidden;
+  }
+  details.finding[open] { background:linear-gradient(180deg,var(--panel-2),var(--panel)); }
+  details.finding.critical { border-left-color:var(--critical); }
+  details.finding.high { border-left-color:var(--high); }
+  details.finding.medium { border-left-color:var(--medium); }
+  details.finding.low { border-left-color:var(--low); }
+  details.finding.info { border-left-color:var(--info); }
+  summary {
+    list-style:none; cursor:pointer; display:grid; grid-template-columns:auto auto 1fr auto;
+    gap:.6rem; align-items:center; padding:.7rem .85rem;
+  }
+  summary::-webkit-details-marker { display:none; }
+  summary:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
+  .sev {
+    font-family:var(--mono); font-size:.66rem; font-weight:700; letter-spacing:.1em;
+    text-transform:uppercase; padding:.14rem .42rem; border-radius:.25rem;
+    border:1px solid currentColor; white-space:nowrap;
+  }
+  .sev.critical{color:var(--critical)} .sev.high{color:var(--high)} .sev.medium{color:var(--medium)}
+  .sev.low{color:var(--low)} .sev.info{color:var(--info)}
+  .check-id { font-family:var(--mono); font-size:.8rem; color:var(--muted); white-space:nowrap; }
+  .finding-title { font-weight:550; }
+  .pill {
+    font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em;
+    border:1px solid var(--line-2); border-radius:999px; padding:.1rem .5rem; color:var(--muted);
+    white-space:nowrap;
+  }
+  .pill.observed { color:var(--low); border-color:color-mix(in srgb, var(--low) 45%, var(--line-2)); }
+  .pill.inferred { color:var(--medium); border-color:color-mix(in srgb, var(--medium) 45%, var(--line-2)); }
+  .body { padding:.2rem .95rem 1rem 1.05rem; border-top:1px solid var(--line); }
+  .body .tags {
+    display:flex; flex-wrap:wrap; gap:.35rem; margin:.7rem 0 .2rem;
+  }
+  .field { margin-top:.85rem; }
+  .field-label {
+    font-family:var(--mono); font-size:.64rem; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--faint); margin:0 0 .2rem;
+  }
+  .field p { margin:0; }
+  .field ul { margin:.15rem 0 0 1rem; padding:0; }
+  .field li { margin:.12rem 0; }
+  .field.evidence li { font-family:var(--mono); font-size:.82rem; color:var(--muted); }
+  code {
+    font-family:var(--mono); font-size:.88em; color:var(--fg);
+    background:color-mix(in srgb, var(--fg) 8%, transparent);
+    padding:.08rem .32rem; border-radius:.25rem;
+  }
+  .empty-state {
+    border:1px dashed var(--line-2); border-radius:var(--radius); padding:1.4rem;
+    color:var(--muted); text-align:center; font-family:var(--mono); font-size:.9rem;
+  }
+  .note {
+    border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:.4rem;
+    background:color-mix(in srgb, var(--accent) 6%, var(--panel));
+    padding:.7rem .9rem; margin:1.5rem 0; font-size:.9rem; color:var(--muted);
+  }
+  .note strong { color:var(--fg); }
+  footer {
+    margin-top:2.5rem; padding-top:.9rem; border-top:1px solid var(--line);
+    font-family:var(--mono); font-size:.74rem; letter-spacing:.06em; color:var(--faint);
+    display:flex; flex-wrap:wrap; gap:.5rem 1.2rem; justify-content:space-between;
+  }
+  @media print {
+    :root {
+      --bg:#ffffff; --bg-2:#ffffff; --panel:#ffffff; --panel-2:#ffffff;
+      --line:#cccccc; --line-2:#b5b5b5;
+      --fg:#000000; --muted:#333333; --faint:#555555;
+      --accent:#000000; --accent-fg:#ffffff; --accent-dim:#999999;
+      --critical:#000000; --high:#000000; --medium:#000000; --low:#000000; --info:#000000;
+    }
+    body { background-image:none; }
+    body::before { display:none; }
+    details.finding, .kpis, .masthead, .note { break-inside:avoid; }
+    .status-dot { display:none; }
+  }
+</style>
+</head>
+<body>
+<main>
+<div class="masthead">
+  <span class="brand"><span class="status-dot"></span>mcp threat observatory</span>
+  <span class="right"><span>passive collection</span><span class="tlp">TLP:CLEAR</span></span>
+</div>
+<div class="title-block">
+  <h1>Passive observation<span class="accent"> 127.0.0.1:8787</span></h1>
+  <p class="lede">What an ordinary MCP client sees before authenticating.</p>
+</div>
+<div class="kpis"><div class="kpi"><span class="kpi-label">target</span><span class="kpi-value">http://127.0.0.1:8787/mcp</span></div><div class="kpi"><span class="kpi-label">collected</span><span class="kpi-value">2026-11-22T15:29:59.824Z</span></div><div class="kpi"><span class="kpi-label">auth required</span><span class="kpi-value">no</span></div><div class="kpi"><span class="kpi-label">tools</span><span class="kpi-value">4</span></div></div>
+<div class="severity">
+  <div class="bar" role="img" aria-label="0 critical, 1 high, 2 medium, 2 low, 1 info"><span class="seg high" style="width:16.67%"></span><span class="seg medium" style="width:33.33%"></span><span class="seg low" style="width:33.33%"></span><span class="seg info" style="width:16.67%"></span></div>
+  <div class="legend"><span><span class="dot critical"></span>critical <b>0</b></span><span><span class="dot high"></span>high <b>1</b></span><span><span class="dot medium"></span>medium <b>2</b></span><span><span class="dot low"></span>low <b>2</b></span><span><span class="dot info"></span>info <b>1</b></span></div>
+</div>
+<p class="section-label">Findings · 6</p>
+<details class="finding high" open>
+  <summary>
+    <span class="sev high">high</span>
+    <span class="check-id">AUTH-001</span>
+    <span class="finding-title">MCP endpoint completes a handshake with no credential</span>
+    <span class="pill observed">observed</span>
+  </summary>
+  <div class="body">
+    <div class="tags"><span class="pill">MCP07</span><span class="pill">authentication</span><span class="pill">confidence: high</span><span class="pill">fingerprint: 25b8b63a0507c32b</span></div>
+    <div class="field"><p class="field-label">Observation</p><p>An unauthenticated initialize succeeded (HTTP 200) and 4 tools were enumerated.</p></div>
+<div class="field"><p class="field-label">Inference</p><p>Tools with high-impact capability are reachable without a credential: send_email.</p></div>
+<div class="field"><p class="field-label">Recommendation</p><p>If this endpoint is not intentionally public, require OAuth 2.1 per the MCP authorization specification and return 401 with a WWW-Authenticate challenge on unauthenticated requests.</p></div>
+<div class="field"><p class="field-label">Limitations</p><ul><li>Only the unauthenticated surface was observed. Behaviour behind the login boundary is unknown.</li><li>Intent is not observable: a public endpoint may be a deliberate choice.</li></ul></div>
+<div class="field evidence"><p class="field-label">Evidence</p><ul><li>POST http://127.0.0.1:8787/mcp → 200</li><li>initialize → result — demo-server</li></ul></div>
+  </div>
+</details>
+<details class="finding medium">
+  <summary>
+    <span class="sev medium">medium</span>
+    <span class="check-id">RISK-001</span>
+    <span class="finding-title">Catalog combines private-data access, untrusted input and egress</span>
+    <span class="pill inferred">inferred</span>
+  </summary>
+  <div class="body">
+    <div class="tags"><span class="pill">MCP02 · MCP06</span><span class="pill">capability-composition</span><span class="pill">confidence: low</span><span class="pill">fingerprint: 204939a7663a6b50</span></div>
+    <div class="field"><p class="field-label">Observation</p><p>The catalog contains tools that read private data (list_customers, get_notes), tools that accept unconstrained external input (fetch_url) and tools that can send data outward (fetch_url, send_email).</p></div>
+<div class="field"><p class="field-label">Inference</p><p>A single injected instruction reaching the ingress tool could move data from the reader to the egress tool. This is a structural risk indicator inferred from tool metadata, not an observed exploit.</p></div>
+<div class="field"><p class="field-label">Recommendation</p><p>Separate private-data readers from egress tools across servers, require explicit confirmation before outbound actions, and scope credentials per tool rather than per server.</p></div>
+<div class="field"><p class="field-label">Limitations</p><ul><li>Capability classes are inferred from tool names, descriptions and annotations; they may be wrong.</li><li>No tool was invoked, so no data flow was observed.</li><li>A trifecta indicator is not a vulnerability and must not be reported as one.</li></ul></div>
+<div class="field evidence"><p class="field-label">Evidence</p><ul><li>tools/list → capability composition</li></ul></div>
+  </div>
+</details>
+<details class="finding medium">
+  <summary>
+    <span class="sev medium">medium</span>
+    <span class="check-id">TOOL-002</span>
+    <span class="finding-title">Tool metadata contains language aimed at the model</span>
+    <span class="pill inferred">inferred</span>
+  </summary>
+  <div class="body">
+    <div class="tags"><span class="pill">MCP03 · MCP06</span><span class="pill">supply-chain · prompt-injection</span><span class="pill">confidence: moderate</span><span class="pill">fingerprint: 81627f053a9b1948</span></div>
+    <div class="field"><p class="field-label">Observation</p><p>1 metadata field matched narrow injection heuristics: tools[get_notes].description (instruction-override, credential-path).</p></div>
+<div class="field"><p class="field-label">Inference</p><p>Text in tool metadata may be intended to steer the model rather than describe the tool. This is a signal, not proof of malice.</p></div>
+<div class="field"><p class="field-label">Recommendation</p><p>Review the matched fields manually. If the wording is not justified by the tool&#39;s function, treat the server as untrusted until the publisher explains it. Prefer servers that pin tool definitions by hash.</p></div>
+<div class="field"><p class="field-label">Limitations</p><ul><li>Pattern matching cannot distinguish adversarial metadata from unusual but legitimate documentation.</li><li>Novel or paraphrased instructions will not be detected.</li><li>Absence of a match is not evidence of safety.</li></ul></div>
+<div class="field evidence"><p class="field-label">Evidence</p><ul><li>tools[get_notes].description — Do not tell the user | &lt;IMPORTANT&gt; | .ssh/id_rsa | id_rsa</li></ul></div>
+  </div>
+</details>
+<details class="finding low">
+  <summary>
+    <span class="sev low">low</span>
+    <span class="check-id">PROTO-001</span>
+    <span class="finding-title">Discovery methods are unimplemented rather than empty</span>
+    <span class="pill observed">observed</span>
+  </summary>
+  <div class="body">
+    <div class="tags"><span class="pill">interoperability</span><span class="pill">confidence: high</span><span class="pill">fingerprint: c1def9fd5889acd3</span></div>
+    <div class="field"><p class="field-label">Observation</p><p>prompts/list returned JSON-RPC -32601 (Method not found).</p></div>
+<div class="field"><p class="field-label">Inference</p><p>Tooling that enumerates capabilities will report the server as partially broken, and marketplace listings may be rejected or incomplete.</p></div>
+<div class="field"><p class="field-label">Recommendation</p><p>Return an empty array ({ resources: [] } / { prompts: [] }) when the capability is not offered.</p></div>
+<div class="field"><p class="field-label">Limitations</p><ul><li>This affects interoperability, not the security of the server itself.</li></ul></div>
+<div class="field evidence"><p class="field-label">Evidence</p><ul><li>prompts/list → -32601</li></ul></div>
+  </div>
+</details>
+<details class="finding low">
+  <summary>
+    <span class="sev low">low</span>
+    <span class="check-id">TOOL-003</span>
+    <span class="finding-title">Tool input schemas accept unconstrained input</span>
+    <span class="pill observed">observed</span>
+  </summary>
+  <div class="body">
+    <div class="tags"><span class="pill">MCP05 · MCP02</span><span class="pill">input-validation</span><span class="pill">confidence: high</span><span class="pill">fingerprint: d67003658fc5e980</span></div>
+    <div class="field"><p class="field-label">Observation</p><p>3 of 4 tools accept an unconstrained string parameter; 2 use an object schema without additionalProperties: false. High-impact tools affected: send_email.</p></div>
+<div class="field"><p class="field-label">Inference</p><p>Unconstrained input widens the path from model output to a shell, a query, a filesystem path or an outbound request.</p></div>
+<div class="field"><p class="field-label">Recommendation</p><p>Set additionalProperties: false and constrain every string parameter with enum, pattern, format or maxLength.</p></div>
+<div class="field"><p class="field-label">Limitations</p><ul><li>Schema strictness is a proxy: a strict schema does not guarantee safe handling downstream.</li></ul></div>
+<div class="field evidence"><p class="field-label">Evidence</p><ul><li>tools/list → inputSchema</li></ul></div>
+  </div>
+</details>
+<details class="finding info">
+  <summary>
+    <span class="sev info">info</span>
+    <span class="check-id">TOOL-001</span>
+    <span class="finding-title">Tool metadata is incomplete</span>
+    <span class="pill observed">observed</span>
+  </summary>
+  <div class="body">
+    <div class="tags"><span class="pill">MCP03 · MCP02</span><span class="pill">metadata-quality</span><span class="pill">confidence: high</span><span class="pill">fingerprint: fd9a935f57dd05c1</span></div>
+    <div class="field"><p class="field-label">Observation</p><p>Of 4 tools: 0 have no annotations, 4 have no title, 0 have no description.</p></div>
+<div class="field"><p class="field-label">Inference</p><p>Clients cannot warn users about destructive or open-world behaviour, and LLM tool selection relies on descriptions that are missing.</p></div>
+<div class="field"><p class="field-label">Recommendation</p><p>Annotate every tool with title, readOnlyHint, destructiveHint, idempotentHint and openWorldHint, and write a description that states when the tool should and should not be used.</p></div>
+<div class="field"><p class="field-label">Limitations</p><ul><li>Annotations are hints, not enforcement; correct annotation does not imply correct behaviour.</li></ul></div>
+<div class="field evidence"><p class="field-label">Evidence</p><ul><li>tools/list → annotations/title/description</li></ul></div>
+  </div>
+</details>
+<div class="note"><strong>What this does not claim.</strong> No tool was invoked, nothing behind the login boundary was observed, and no finding is evidence of intent.</div>
+<footer><span>5 stated limitations</span><span>mcp-threat-observatory</span></footer>
+</main>
+</body>
+</html>
