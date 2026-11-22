@@ -1,4 +1,5 @@
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
+import { spawn } from "node:child_process";
 import { Command } from "commander";
 import { buildSnapshot } from "./analyze.ts";
 import { ALL_CHECKS } from "./checks/index.ts";
@@ -7,7 +8,13 @@ import { analyseBehaviour, BEHAVIOUR_RULES } from "./behaviour/analyser.ts";
 import { buildArtefact, writeBehaviourArtefact } from "./behaviour/artefact.ts";
 import { renderBehaviourMarkdown } from "./behaviour/report.ts";
 import { runBehaviour } from "./behaviour/runner.ts";
+import { buildAssessment, renderAssessmentMarkdown } from "./assess.ts";
+import { writeAssessment } from "./output/assessment.ts";
+import { renderSnapshotHtml } from "./output/html.ts";
+import { startUiServer } from "./ui.ts";
 import { diffSnapshots, renderDrift } from "./drift.ts";
+import type { Snapshot } from "./model.ts";
+import type { BehaviourRecord } from "./behaviour/types.ts";
 import { snapshotFingerprint, parseSnapshot, renderJson } from "./output/json.ts";
 import { renderMarkdown } from "./output/markdown.ts";
 import { writeSnapshot } from "./output/snapshot.ts";
@@ -20,7 +27,6 @@ import {
   UnsafeTargetError,
 } from "./safety.ts";
 import { VERSION } from "./version.ts";
-import type { Snapshot } from "./model.ts";
 
 const program = new Command();
 
@@ -70,6 +76,7 @@ program
   .option("--timeout <ms>", "per-request timeout in milliseconds", "15000")
   .option("--json", "print the snapshot JSON instead of the markdown report")
   .option("--stix", "print a STIX 2.1 bundle instead of the markdown report")
+  .option("--html <file>", "write a self-contained HTML report")
   .option("--quiet", "write files but print only a summary line")
   .action(async (target: string | undefined, options: Record<string, string | boolean | undefined>) => {
     if (!isAuthorized(options.authorized === true)) {
@@ -109,6 +116,11 @@ program
         });
         const snapshot = buildSnapshot(probe);
         const written = await writeSnapshot(outDir, snapshot);
+
+        if (typeof options.html === "string") {
+          await writeFile(options.html, renderSnapshotHtml(snapshot), "utf8");
+          console.error(`wrote ${options.html}`);
+        }
 
         if (!quiet) {
           if (options.stix === true) {
@@ -230,6 +242,97 @@ program
         2,
       ),
     );
+  });
+
+function openInBrowser(url: string): void {
+  const bin = process.platform === "darwin" ? "open" : process.platform === "win32" ? "cmd" : "xdg-open";
+  const args = process.platform === "win32" ? ["/c", "start", "", url] : [url];
+  try {
+    spawn(bin, args, { detached: true, stdio: "ignore" }).unref();
+  } catch {
+    /* no browser available: the URL is printed anyway */
+  }
+}
+
+program
+  .command("assess")
+  .argument("[command...]", "command that starts a stdio MCP server")
+  .description("Observe a server passively and behaviourally, then combine both records")
+  .option("--url <url>", "HTTP endpoint to observe passively")
+  .option("--authorized", "confirm you operate or are authorised to test this server")
+  .option("--allow-unisolated", "run behaviour without a network namespace (unsafe)")
+  .option("--out <dir>", "assessment directory", "assessments")
+  .option("--timeout <ms>", "wall-clock budget for the behavioural run", "60000")
+  .option("--tool-timeout <ms>", "budget per tool call", "5000")
+  .option("--json", "print the assessment JSON")
+  .action(async (command: string[] | undefined, options: Record<string, string | boolean | undefined>) => {
+    if (!isAuthorized(options.authorized === true)) {
+      console.error(CONSENT_NOTICE);
+      process.exit(2);
+    }
+
+    const urlRaw = typeof options.url === "string" ? options.url : undefined;
+    const cmd = Array.isArray(command) ? command : [];
+    if (!urlRaw && cmd.length === 0) {
+      console.error("assess: pass --url, a command after --, or both.");
+      process.exit(2);
+    }
+
+    const outDir = typeof options.out === "string" ? options.out : "assessments";
+    try {
+      let snapshot: Snapshot | null = null;
+      if (urlRaw) {
+        const url = assertScannableTarget(urlRaw);
+        snapshot = buildSnapshot(await probeServer(url.toString(), { timeoutMs: 15_000 }));
+      }
+
+      let record: BehaviourRecord | null = null;
+      if (cmd.length > 0) {
+        record = await runBehaviour({
+          command: cmd,
+          timeoutMs: Number(options.timeout ?? 60_000),
+          toolTimeoutMs: Number(options.toolTimeout ?? 5_000),
+          allowUnisolated: options.allowUnisolated === true,
+        });
+      }
+
+      const assessment = buildAssessment({
+        url: urlRaw ?? null,
+        command: record?.target.command ?? (cmd.length ? cmd : null),
+        snapshot,
+        record,
+      });
+      const written = await writeAssessment(outDir, assessment);
+
+      console.log(options.json === true ? JSON.stringify(assessment, null, 2) : renderAssessmentMarkdown(assessment));
+      console.error(
+        `[${written.fingerprint.slice(0, 8)}] ${assessment.findings.length} finding(s) · ${written.json} · ${written.html}`,
+      );
+    } catch (error) {
+      console.error(`assess failed: ${error instanceof Error ? error.message : String(error)}`);
+      process.exitCode = 1;
+    }
+  });
+
+program
+  .command("ui")
+  .description("Local, passive-only web interface (binds to 127.0.0.1)")
+  .option("--port <n>", "port on 127.0.0.1", "4040")
+  .option("--out <dir>", "snapshot directory", "snapshots")
+  .option("--open", "open the default browser")
+  .action(async (options: Record<string, string | boolean | undefined>) => {
+    const port = Number(options.port ?? 4040);
+    const server = await startUiServer({ port, outDir: typeof options.out === "string" ? options.out : "snapshots" });
+    console.log(`mcp-threat-observatory UI: ${server.url}`);
+    console.log("Passive only: no tool is invoked. Press Ctrl+C to stop.");
+    if (options.open === true) openInBrowser(server.url);
+
+    const shutdown = async () => {
+      await server.close();
+      process.exit(0);
+    };
+    process.on("SIGINT", () => void shutdown());
+    process.on("SIGTERM", () => void shutdown());
   });
 
 program

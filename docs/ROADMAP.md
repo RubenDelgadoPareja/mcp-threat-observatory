@@ -49,7 +49,14 @@ namespace's own (absent) route; no publication of payloads.
 - [ ] Drift feed across a whole corpus, with a per-target history
 - [ ] Distinguish "server changed" from "collector changed"
 
-## v0.4 — Infrastructure and publisher clustering
+## v0.4 — Assessment and presentation
+
+- [x] `assess`: both modes in one artefact, with the link recorded as an assertion
+- [x] Self-contained HTML reports (no scripts, no external assets)
+- [x] Local, passive-only UI with a token, an `Origin` check and an attestation
+- [ ] Shareable static site for a whole corpus (still no server-side scanning)
+
+## v0.5 — Infrastructure and publisher clustering
 
 - [ ] Publisher identity from registry metadata (account age, version velocity)
 - [ ] Typosquat distance against popular server names
@@ -60,7 +67,7 @@ namespace's own (absent) route; no publication of payloads.
 **Acceptance:** the SmartLoader pattern (new accounts, fabricated history,
 cloned package) is surfaced as a cluster, not as N unrelated findings.
 
-## v0.5 — Dataset and detections
+## v0.6 — Dataset and detections
 
 - [ ] Versioned public dataset (JSON + Parquet) with a schema and a changelog
 - [ ] YARA rules for malicious MCP server packages

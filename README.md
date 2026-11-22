@@ -29,7 +29,7 @@ contrast is the point: an instrument that always alerts observes nothing.
 — why the record matters more than the verdict, what the tool cannot see, and how
 to check every claim.
 
-**Status: v0.2.** Two modes: passive observation (no code executed) and
+**Status: v0.4.** Two modes: passive observation (no code executed) and
 behavioural collection (server executed inside a network namespace, with canary
 credentials). No clustering yet, and no attribution ever.
 See [ROADMAP](docs/ROADMAP.md) for what is deliberately missing and why.
@@ -78,6 +78,10 @@ composition) and three behavioural (`BEHAV-001`…`003`). Each is reported as
 either **observed** or **inferred**, with an explicit confidence level and an
 explicit list of limitations.
 
+`mcpobs assess` runs both modes and writes one artefact, recording the link
+between the URL and the command as an **assertion**, not a fact. `mcpobs ui`
+opens a local, passive-only page for pasting an endpoint.
+
 ## Two languages, one reason
 
 | Layer | Language | Why |
@@ -115,6 +119,9 @@ node dist/cli.js report <snapshot.json> --format md|json|stix
 node dist/cli.js inspect <snapshot.json>   # provenance and integrity details
 node dist/cli.js drift a.json b.json       # what changed between two records
 node dist/cli.js drift a.json b.json --fail-on-change   # CI gate, exit 1
+node dist/cli.js assess --url <url> -- <command>        # both modes, one record
+node dist/cli.js scan <url> --html report.html          # self-contained report
+node dist/cli.js ui                        # local, passive-only web interface
 ```
 
 ### Behavioural collection
@@ -223,6 +230,7 @@ Rationale, false-positive behaviour and interpretation for each check:
 - [Check catalogue](docs/CHECKS.md)
 - [Behavioural collection](docs/BEHAVIOUR.md)
 - [Drift and the CI gate](docs/DRIFT.md)
+- [Assessment, HTML and the local UI](docs/ASSESS.md)
 - [Ethics and authorisation](docs/ETHICS.md)
 - [Disclosure policy](docs/DISCLOSURE.md)
 - [Data model and STIX mapping](docs/DATA-MODEL.md)

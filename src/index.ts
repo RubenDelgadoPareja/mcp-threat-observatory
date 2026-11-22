@@ -15,6 +15,18 @@ export { assertScannableTarget, isAuthorized, UnsafeTargetError, CONSENT_NOTICE,
 
 export { diffSnapshots, renderDrift, toolSignature, type DriftReport, type ToolChange } from "./drift.ts";
 
+export {
+  buildAssessment,
+  renderAssessmentMarkdown,
+  assessmentFingerprint,
+  type Assessment,
+  type AssessedFinding,
+  type LinkAssertion,
+} from "./assess.ts";
+export { writeAssessment, type WrittenAssessment } from "./output/assessment.ts";
+export { renderSnapshotHtml, renderAssessmentHtml } from "./output/html.ts";
+export { startUiServer, type UiOptions, type UiServer } from "./ui.ts";
+
 export { runBehaviour, canIsolateNetwork, type RunBehaviourOptions } from "./behaviour/runner.ts";
 export { analyseBehaviour, BEHAVIOUR_RULES, type BehaviourRule } from "./behaviour/analyser.ts";
 export { generateArguments, type GeneratedArguments } from "./behaviour/args.ts";

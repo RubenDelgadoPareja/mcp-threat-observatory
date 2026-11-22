@@ -7,7 +7,7 @@ abstract: >-
   per-finding confidence, explicit limitations, and STIX 2.1 export.
 type: software
 license: MIT
-version: 0.2.0
+version: 0.4.0
 date-released: "2026-11-22"
 keywords:
   - mcp

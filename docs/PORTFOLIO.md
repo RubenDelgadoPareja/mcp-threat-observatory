@@ -29,7 +29,7 @@ If someone only reads one line, that is the line.
 >   detection of credential exfiltration in controlled Node and Python fixtures.
 > - Enforced evidence integrity: SHA-256 digests per HTTP exchange, deterministic
 >   finding fingerprints, and STIX 2.1 bundles validated against the reference
->   `stix2` implementation. 129 tests.
+>   `stix2` implementation. 144 tests.
 
 **Technical bullet (for a security-focused CV)**
 

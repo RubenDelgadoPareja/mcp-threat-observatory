@@ -51,8 +51,16 @@ the observer could not see.
   JSON Schema — no model in the loop.
 - `BEHAV-001` canary exfiltration, `BEHAV-002` egress, `BEHAV-003` credential read.
 
+**Assessment and presentation:**
+
+- `mcpobs assess` combines both modes into one artefact, recording the link
+  between endpoint and command as `operator-asserted` rather than a fact.
+- Self-contained HTML reports: inline CSS, no scripts, no external assets.
+- A local, passive-only UI that binds to `127.0.0.1`, requires a startup token
+  and checks `Origin` — and deliberately has no command field.
+
 Every finding carries `assertion: observed | inferred`, a confidence level, and
-mandatory limitations. 84 TypeScript tests (including end-to-end collection and
+mandatory limitations. 99 TypeScript tests (including end-to-end collection and
 execution in both runtimes) and 45 Python tests.
 
 ## Why it is different
