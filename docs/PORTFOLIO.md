@@ -26,16 +26,16 @@ If someone only reads one line, that is the line.
 >   every finding graded as observed or inferred.
 > - Implemented behavioural analysis inside a network namespace: temporary HOME,
 >   seven canary credentials, deterministic schema-driven tool invocation, and
->   detection of credential exfiltration in a controlled fixture.
+>   detection of credential exfiltration in controlled Node and Python fixtures.
 > - Enforced evidence integrity: SHA-256 digests per HTTP exchange, deterministic
 >   finding fingerprints, and STIX 2.1 bundles validated against the reference
->   `stix2` implementation. 114 tests.
+>   `stix2` implementation. 117 tests.
 
 **Technical bullet (for a security-focused CV)**
 
 > Built passive and behavioural collection for Model Context Protocol servers:
 > RFC 9728 discovery analysis, OWASP MCP Top 10 mapping, `unshare`-based network
-> isolation, a Node API observation hook, and a drift detector over full tool
+> isolation, Node and Python runtime hooks, and a drift detector over full tool
 > definitions that catches annotation-only changes.
 
 ## Profile / LinkedIn

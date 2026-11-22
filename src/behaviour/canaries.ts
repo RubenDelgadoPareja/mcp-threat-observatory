@@ -17,6 +17,7 @@ export interface SandboxEnvironment {
 export interface SandboxOptions {
   /** Overrides hook discovery. Mostly useful in tests. */
   hookPath?: string;
+  pythonHookPath?: string;
   baseDir?: string;
 }
 
@@ -24,19 +25,27 @@ function newCanary(): string {
   return `CANARY-${randomBytes(8).toString("hex")}`;
 }
 
+function findRuntimeFile(relative: string, explicit?: string): string {
+  if (explicit) return explicit;
+  let dir = dirname(fileURLToPath(import.meta.url));
+  for (let depth = 0; depth < 5; depth += 1) {
+    const candidate = join(dir, "runtime", relative);
+    if (existsSync(candidate)) return candidate;
+    dir = dirname(dir);
+  }
+  throw new Error(`runtime/${relative} not found; the package is incomplete`);
+}
+
 /**
  * Finds runtime/node-hook.cjs from either src/ or dist/, without relying on a
  * bundler-specific relative depth.
  */
 export function findHookPath(explicit?: string): string {
-  if (explicit) return explicit;
-  let dir = dirname(fileURLToPath(import.meta.url));
-  for (let depth = 0; depth < 5; depth += 1) {
-    const candidate = join(dir, "runtime", "node-hook.cjs");
-    if (existsSync(candidate)) return candidate;
-    dir = dirname(dir);
-  }
-  throw new Error("runtime/node-hook.cjs not found; the package is incomplete");
+  return findRuntimeFile("node-hook.cjs", explicit);
+}
+
+export function findPythonHookPath(explicit?: string): string {
+  return findRuntimeFile(join("python", "sitecustomize.py"), explicit);
 }
 
 /**
@@ -104,6 +113,15 @@ export function createSandboxEnvironment(options: SandboxOptions = {}): SandboxE
   const hookTarget = join(root, "node-hook.cjs");
   copyFileSync(hookSource, hookTarget);
   env.NODE_OPTIONS = `--require=${hookTarget}`;
+
+  // Both hooks are installed unconditionally. Each runtime loads the one it
+  // understands and ignores the other, so no language detection is needed.
+  const pythonSource = findPythonHookPath(options.pythonHookPath);
+  const pythonDir = join(root, "python");
+  mkdirSync(pythonDir, { recursive: true });
+  copyFileSync(pythonSource, join(pythonDir, "sitecustomize.py"));
+  env.PYTHONPATH = pythonDir;
+  env.PYTHONDONTWRITEBYTECODE = "1";
 
   return {
     root,

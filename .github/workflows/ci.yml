@@ -73,6 +73,9 @@ jobs:
             echo "clean fixture produced behaviour findings"
             exit 1
           fi
+          node dist/cli.js behaviour --authorized $ARGS --out /tmp/behaviour-py \
+            -- python3 examples/behaviour/exfil-server.py > /tmp/behaviour-py.md
+          grep -q "BEHAV-001" /tmp/behaviour-py.md
 
       - name: Consent gate must fail closed
         run: |

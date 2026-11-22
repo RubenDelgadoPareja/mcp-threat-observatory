@@ -143,22 +143,33 @@ export function analyseBehaviour(record: BehaviourRecord): Finding[] {
     );
   }
 
+  const canaryDestinations = new Set<string>();
+  for (const group of grouped.values()) {
+    if (group.host) canaryDestinations.add(group.host);
+  }
+
   // ---- BEHAV-002: egress to a non-loopback destination ----------------------
+  // A name lookup counts: inside an isolated namespace it is often the only
+  // observable step before a connection fails.
   const targets = new Map<string, { host: string; port?: number }>();
   for (const event of record.events) {
-    if (event.type !== "net.connect") continue;
+    if (event.type !== "net.connect" && event.type !== "dns.lookup" && event.type !== "net.write") continue;
     if (isLoopback(event.host)) continue;
     const host = event.host ?? "unknown";
-    const key = `${host}:${event.port ?? "unknown"}`;
-    if (!targets.has(key)) targets.set(key, { host, port: event.port });
+    // A destination that received a canary is already reported as BEHAV-001.
+    if (canaryDestinations.has(host)) continue;
+    const existing = targets.get(host);
+    if (!existing) targets.set(host, { host, port: event.port });
+    else if (existing.port === undefined && event.port !== undefined) existing.port = event.port;
   }
-  for (const [key, target] of targets) {
+  for (const [host, target] of targets) {
+    const destination = target.port !== undefined ? `${host}:${target.port}` : host;
     findings.push(
       build(record, rule("BEHAV-002"), {
         severity: "low",
         confidence: "high",
         assertion: "observed",
-        observation: `An outbound connection was attempted to ${key}.`,
+        observation: `An outbound connection was attempted to ${destination}.`,
         inference:
           "Without the package's documented endpoints, this collector cannot tell a legitimate API call " +
           "from exfiltration. The destination is a fact; the intent is not.",
@@ -167,12 +178,13 @@ export function analyseBehaviour(record: BehaviourRecord): Finding[] {
           "documented dependency, ask the publisher to explain it.",
         limitations: [
           "Any outbound call is reported, including legitimate ones: this is a signal, not a vulnerability.",
+          "Destinations that received a canary are reported under BEHAV-001 instead of here.",
           ...(record.isolation.network === "open"
             ? ["The run was not network-isolated, so the connection may have reached a real service."]
             : ["The connection was attempted inside a network namespace and could not complete."]),
         ],
-        evidence: [{ kind: "derived", locator: `net.connect → ${key}` }],
-        discriminator: key,
+        evidence: [{ kind: "derived", locator: `egress → ${destination}` }],
+        discriminator: host,
       }),
     );
   }

@@ -244,7 +244,9 @@ export async function runBehaviour(options: RunBehaviourOptions): Promise<Behavi
 
   const events = readEvents(sandbox.logPath);
   const egressAttempts = events.filter(
-    (event) => event.type === "net.connect" && !isLoopback(event.host),
+    (event) =>
+      (event.type === "net.connect" || event.type === "dns.lookup" || event.type === "net.write") &&
+      !isLoopback(event.host),
   ).length;
   const canaryReads = events.filter((event) => event.type === "fs.read").length;
   const canarySends = events.filter(

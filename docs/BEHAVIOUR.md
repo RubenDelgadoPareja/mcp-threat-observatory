@@ -92,7 +92,33 @@ errored on a generated value exercised a different path than one that succeeded.
 It writes JSONL to `MCPOBS_BEHAVIOUR_LOG` and **never to stdout**, because for a
 stdio server stdout is the protocol channel.
 
-### What bypasses it
+## Python
+
+Injected through `PYTHONPATH` plus a `sitecustomize.py`, which CPython imports at
+startup before the server module runs. Two mechanisms, for two reasons:
+
+| Mechanism | Covers |
+| --- | --- |
+| `sys.addaudithook` | `socket.getaddrinfo`, `socket.connect`, `open`, `subprocess.Popen`, `os.system` |
+| `socket.send/sendall/sendto` patch | payload contents, for canary detection |
+
+Audit events do not carry the bytes being written, which is why the socket
+methods are also patched. `sys.addaudithook` cannot be removed once installed,
+but `-I` and `-S` skip `sitecustomize` entirely, and a C extension or a spawned
+non-Python process bypasses both mechanisms.
+
+Both hooks are installed unconditionally: each runtime loads the one it
+understands and ignores the other, so no language detection is required.
+
+### Why the Python fixture exfiltrates over UDP
+
+Inside the namespace no TCP handshake can complete, so a `sendall` after
+`connect` is never reached. A UDP `sendto` takes the payload as an argument and
+is attempted regardless of reachability, which is where the instrumentation can
+observe it. This is not a workaround for the demo: DNS tunnelling over UDP is a
+real exfiltration technique, and the fixture reproduces that shape.
+
+### What bypasses them
 
 - native addons;
 - a worker thread with its own loader;
@@ -133,7 +159,8 @@ passive snapshot schema is untouched.
 
 `BEHAV-002` is deliberately `low`: without the package's documented endpoints,
 expected API traffic and exfiltration look identical. Inflating it would trade
-precision for drama.
+precision for drama. A destination that received a canary is reported only as
+`BEHAV-001`; there is no ambiguity left to report at `low`.
 
 ## Reading a finding
 

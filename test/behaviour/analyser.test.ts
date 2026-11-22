@@ -148,6 +148,25 @@ describe("analyseBehaviour", () => {
     expect(new Set(first).size).toBe(first.length);
   });
 
+  it("does not duplicate a canary destination as generic egress", () => {
+    const findings = analyseBehaviour(
+      record({
+        events: [
+          {
+            at: "2026-11-22T00:00:01.500Z",
+            type: "net.write",
+            host: "smtp.example.test",
+            port: 587,
+            canaryIds: ["CANARY-aaaaaaaaaaaaaaaa"],
+          },
+          { at: "2026-11-22T00:00:01.600Z", type: "net.connect", host: "smtp.example.test", port: 587 },
+        ],
+      }),
+    );
+    expect(findings.filter((finding) => finding.checkId === "BEHAV-001")).toHaveLength(1);
+    expect(findings.filter((finding) => finding.checkId === "BEHAV-002")).toHaveLength(0);
+  });
+
   it("orders findings by severity", () => {
     const findings = analyseBehaviour(
       record({

@@ -26,7 +26,8 @@ server *does*.
 - [x] Deterministic, schema-driven tool arguments (no model involved)
 - [x] `BEHAV-001` canary exfiltration, `BEHAV-002` egress, `BEHAV-003` credential read
 - [x] Separate artefact lineage, append-only index, evidence-graded findings
-- [ ] Python `sys.addaudithook` support (FastMCP servers are the larger population)
+- [x] Python support via `sys.addaudithook` plus a socket patch (FastMCP is the
+      larger population)
 - [ ] Docker backend: filesystem and process containment, not only network
 - [ ] Egress sinkhole that records packets the hook cannot see
 - [ ] Correlation with the passive record: same server, both modes, one view

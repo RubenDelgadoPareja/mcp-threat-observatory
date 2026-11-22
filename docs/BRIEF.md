@@ -44,15 +44,16 @@ the observer could not see.
   unavailable.
 - Temporary `HOME` and seven synthetic canary credentials; environment rebuilt
   from scratch so no real token is inherited.
-- Node API hook records destinations, DNS lookups, credential-file reads and
-  child processes. It is observation, not containment, and says so.
+- Node and Python runtime hooks record destinations, DNS lookups,
+  credential-file reads and child processes. They are observation, not
+  containment, and say so.
 - Every tool invoked once with arguments generated deterministically from its
   JSON Schema — no model in the loop.
 - `BEHAV-001` canary exfiltration, `BEHAV-002` egress, `BEHAV-003` credential read.
 
 Every finding carries `assertion: observed | inferred`, a confidence level, and
-mandatory limitations. 69 TypeScript tests (including end-to-end collection and
-execution) and 45 Python tests.
+mandatory limitations. 72 TypeScript tests (including end-to-end collection and
+execution in both runtimes) and 45 Python tests.
 
 ## Why it is different
 
@@ -69,15 +70,16 @@ execution) and 45 Python tests.
 
 ## What is next
 
-Static analysis reads metadata; behavioural collection now reads what a Node
-server does. Two gaps remain, in order of value:
+Two gaps remain, in order of value:
 
-1. **Python servers.** FastMCP is the larger population. Python exposes
-   `sys.addaudithook`, which covers `socket.getaddrinfo`, `socket.connect`,
-   `open` and `subprocess.Popen` — the same evidence class, without native code.
-2. **Real containment.** `unshare -rn` isolates the network only. Filesystem and
+1. **Real containment.** `unshare -rn` isolates the network only. Filesystem and
    child processes need a container or mount namespace. Until then the record
    states the limitation rather than implying safety.
+2. **Correlation.** One view of a server across both modes, drift detection across
+   days, and publisher clustering by typosquat distance, version velocity and
+   template reuse.
+
+After that: publish a corpus-level report with the same evidence grading.
 
 After that: correlate the two modes into one view of a server, and publish a
 corpus-level report with the same evidence grading.

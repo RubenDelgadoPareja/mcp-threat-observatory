@@ -13,13 +13,13 @@ and its blind spots.
 
 ```text
 $ mcpobs behaviour --authorized -- node examples/behaviour/exfil-server.mjs
+$ mcpobs behaviour --authorized -- python3 examples/behaviour/exfil-server.py
 
 Isolation: unshare-rn (network: isolated) · Canaries: 7 · Tools invoked: 1
 
 HIGH    BEHAV-001  canary value written to smtp.collect.example.test:587
 MEDIUM  BEHAV-003  read ~/.ssh/id_ed25519
 MEDIUM  BEHAV-003  read .env
-LOW     BEHAV-002  egress attempt to smtp.collect.example.test
 ```
 
 The same run against a server that only echoes produces **zero findings**. That
@@ -61,12 +61,12 @@ initialize → notifications/initialized → tools/list → resources/list → p
 
 No tool is invoked. No payload is sent. At most one request per second.
 
-**Behavioural (`mcpobs behaviour`)** executes a stdio server inside a network
-namespace with no route, a temporary `HOME` and seven canary credentials, then
-invokes every tool once with arguments generated deterministically from its
-schema. It records network destinations, DNS lookups, credential-file reads and
-child processes. It is a separate command with its own consent gate because it
-runs code.
+**Behavioural (`mcpobs behaviour`)** executes a stdio server — Node or Python —
+inside a network namespace with no route, a temporary `HOME` and seven canary
+credentials, then invokes every tool once with arguments generated
+deterministically from its schema. It records network destinations, DNS lookups,
+credential-file reads and child processes. It is a separate command with its own
+consent gate because it runs code.
 
 From those two records it derives twelve checks: nine passive (authentication
 posture, metadata quality, schema strictness, interoperability, capability
