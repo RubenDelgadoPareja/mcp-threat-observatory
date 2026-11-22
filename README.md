@@ -1,31 +1,52 @@
 # mcp-threat-observatory
 
-> Passive, evidence-graded observation of Model Context Protocol endpoints —
-> and the raw material for longitudinal threat intelligence on the MCP ecosystem.
+**A provenance layer for the MCP supply chain.**
+
+MCP servers are the new supply chain: a package that behaves as advertised and
+also copies your SSH key out. Detecting one bad server is a solved-enough
+problem. What almost nobody produces is a record you can trust months later —
+what was seen, when, with what evidence, and what the observer could *not* see.
+
+This project produces those records. It observes, it executes in isolation, and
+it grades every claim as **observed** or **inferred**, with a confidence level
+and its blind spots.
+
+```text
+$ mcpobs behaviour --authorized -- node examples/behaviour/exfil-server.mjs
+
+Isolation: unshare-rn (network: isolated) · Canaries: 7 · Tools invoked: 1
+
+HIGH    BEHAV-001  canary value written to smtp.collect.example.test:587
+MEDIUM  BEHAV-003  read ~/.ssh/id_ed25519
+MEDIUM  BEHAV-003  read .env
+LOW     BEHAV-002  egress attempt to smtp.collect.example.test
+```
+
+The same run against a server that only echoes produces **zero findings**. That
+contrast is the point: an instrument that always alerts observes nothing.
 
 **Status: v0.2.** Two modes: passive observation (no code executed) and
-behavioural collection (server executed inside a network namespace, with
-canary credentials). No clustering yet, and no attribution ever.
+behavioural collection (server executed inside a network namespace, with canary
+credentials). No clustering yet, and no attribution ever.
 See [ROADMAP](docs/ROADMAP.md) for what is deliberately missing and why.
 
 ---
 
 ## Why this exists
 
-MCP went from a specification to a supply-chain target in under a year. The
-public record now includes a trojanised package that BCC'd every outgoing email
-to an attacker (`postmark-mcp`, Sep 2025), a fake registry listing that shipped
-an infostealer after three months of fabricated GitHub history (SmartLoader /
-Oura Ring, Feb 2026), `.mcp.json` files planted across 73 repositories including
-Microsoft's `azure/durabletask` (Miasma, Jun 2026), and a hosting provider whose
-own MCP server leaked session tokens for 56 customer projects (Mittwald, Oct 2026).
+MCP went from a specification to a supply-chain target in under a year:
+`postmark-mcp` shipped fifteen clean versions and then one line that BCC'd every
+outgoing email to an attacker; a cloned Oura Ring server reached a legitimate
+registry after three months of fabricated GitHub history; adversarial `.mcp.json`
+files appeared in 73 repositories, executing on checkout; a hosting provider's
+own MCP server leaked session tokens for 56 customer projects.
 
-Detecting an individual bad server is a solved-enough problem: several scanners
-exist. What is missing is **records that can be trusted later** — what was seen,
-when, from where, with what evidence, and what the observer could *not* see.
+Three properties make this different from a scanner:
 
-This collector produces those records. It is not a scanner with a nicer report;
-it is a provenance layer.
+- **Observation and inference are separate fields**, not a tone of voice.
+- **Every claim carries confidence and limitations**, enforced by tests.
+- **Every HTTP exchange carries a body digest**, so evidence stays verifiable
+  after the target changes.
 
 ## What it does
 
@@ -187,7 +208,8 @@ Rationale, false-positive behaviour and interpretation for each check:
 
 ## Documentation
 
-- [Project brief](docs/BRIEF.md) — one page, for forwarding
+- [Portfolio notes](docs/PORTFOLIO.md) — how to present this without overclaiming
+- [Project brief](docs/BRIEF.md) — one page, if someone asks what this is
 - [Methodology and evidence grading](docs/METHODOLOGY.md)
 - [Check catalogue](docs/CHECKS.md)
 - [Behavioural collection](docs/BEHAVIOUR.md)
