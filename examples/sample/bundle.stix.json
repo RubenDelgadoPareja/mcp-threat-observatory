@@ -1,0 +1,468 @@
+{
+  "type": "bundle",
+  "id": "bundle--71a4a26e-544b-590e-8add-86823d7ae412",
+  "objects": [
+    {
+      "type": "marking-definition",
+      "spec_version": "2.1",
+      "id": "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9",
+      "created": "2017-01-20T00:00:00.000Z",
+      "definition_type": "tlp",
+      "definition": {
+        "tlp": "clear"
+      }
+    },
+    {
+      "type": "identity",
+      "spec_version": "2.1",
+      "id": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "created": "2026-01-01T00:00:00.000Z",
+      "modified": "2026-01-01T00:00:00.000Z",
+      "name": "mcp-threat-observatory",
+      "identity_class": "system",
+      "description": "Passive collector, version 0.1.0. Contact: not configured."
+    },
+    {
+      "type": "infrastructure",
+      "spec_version": "2.1",
+      "id": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "name": "127.0.0.1:8787",
+      "description": "Remote MCP endpoint observed with a passive handshake. Target: http://127.0.0.1:8787/mcp",
+      "infrastructure_types": [
+        "hosting"
+      ],
+      "first_seen": "2026-11-22T15:29:59.824Z",
+      "last_seen": "2026-11-22T15:29:59.824Z",
+      "x_mcp_observatory": {
+        "target": "http://127.0.0.1:8787/mcp",
+        "transport": "http",
+        "snapshot_fingerprint": "89bdd97466894aed37ec3427",
+        "tools_observed": 4,
+        "authentication_required": false
+      }
+    },
+    {
+      "type": "vulnerability",
+      "spec_version": "2.1",
+      "id": "vulnerability--d5beb1c2-3861-5b96-97eb-de2930b19854",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "name": "AUTH-001: MCP endpoint completes a handshake with no credential",
+      "description": "An unauthenticated initialize succeeded (HTTP 200) and 4 tools were enumerated.",
+      "external_references": [
+        {
+          "source_name": "OWASP MCP Top 10",
+          "external_id": "MCP07",
+          "url": "https://owasp.org/projects/mcp-top-10"
+        }
+      ],
+      "x_mcp_observatory": {
+        "check_id": "AUTH-001",
+        "severity": "high",
+        "confidence": "high",
+        "assertion": "observed",
+        "fingerprint": "25b8b63a0507c32b",
+        "taxonomy": [
+          "authentication"
+        ]
+      }
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--51cf265c-4469-5305-b6a1-1e2d230951b7",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "relationship_type": "has",
+      "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+      "target_ref": "vulnerability--d5beb1c2-3861-5b96-97eb-de2930b19854"
+    },
+    {
+      "type": "note",
+      "spec_version": "2.1",
+      "id": "note--f757b98e-5392-55dc-975d-b002b559706b",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "abstract": "AUTH-001 evidence for 127.0.0.1:8787",
+      "content": "Observation: An unauthenticated initialize succeeded (HTTP 200) and 4 tools were enumerated.\nInference: Tools with high-impact capability are reachable without a credential: send_email.\nRecommendation: If this endpoint is not intentionally public, require OAuth 2.1 per the MCP authorization specification and return 401 with a WWW-Authenticate challenge on unauthenticated requests.\nLimitations: Only the unauthenticated surface was observed. Behaviour behind the login boundary is unknown. | Intent is not observable: a public endpoint may be a deliberate choice.\nEvidence: POST http://127.0.0.1:8787/mcp → 200 | initialize → result",
+      "object_refs": [
+        "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+        "vulnerability--d5beb1c2-3861-5b96-97eb-de2930b19854"
+      ],
+      "x_mcp_observatory": {
+        "assertion": "observed",
+        "confidence": "high",
+        "snapshot_fingerprint": "89bdd97466894aed37ec3427"
+      }
+    },
+    {
+      "type": "vulnerability",
+      "spec_version": "2.1",
+      "id": "vulnerability--8774ea0c-a427-5c73-a45e-d92e28cca840",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "name": "RISK-001: Catalog combines private-data access, untrusted input and egress",
+      "description": "The catalog contains tools that read private data (list_customers, get_notes), tools that accept unconstrained external input (fetch_url) and tools that can send data outward (fetch_url, send_email).",
+      "external_references": [
+        {
+          "source_name": "OWASP MCP Top 10",
+          "external_id": "MCP02",
+          "url": "https://owasp.org/projects/mcp-top-10"
+        },
+        {
+          "source_name": "OWASP MCP Top 10",
+          "external_id": "MCP06",
+          "url": "https://owasp.org/projects/mcp-top-10"
+        }
+      ],
+      "x_mcp_observatory": {
+        "check_id": "RISK-001",
+        "severity": "medium",
+        "confidence": "low",
+        "assertion": "inferred",
+        "fingerprint": "204939a7663a6b50",
+        "taxonomy": [
+          "capability-composition"
+        ]
+      }
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--4b6fa86f-04e1-5b93-ae5c-4b0f35af6497",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "relationship_type": "has",
+      "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+      "target_ref": "vulnerability--8774ea0c-a427-5c73-a45e-d92e28cca840"
+    },
+    {
+      "type": "note",
+      "spec_version": "2.1",
+      "id": "note--d8803609-baab-5212-9484-03f9773e546e",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "abstract": "RISK-001 evidence for 127.0.0.1:8787",
+      "content": "Observation: The catalog contains tools that read private data (list_customers, get_notes), tools that accept unconstrained external input (fetch_url) and tools that can send data outward (fetch_url, send_email).\nInference: A single injected instruction reaching the ingress tool could move data from the reader to the egress tool. This is a structural risk indicator inferred from tool metadata, not an observed exploit.\nRecommendation: Separate private-data readers from egress tools across servers, require explicit confirmation before outbound actions, and scope credentials per tool rather than per server.\nLimitations: Capability classes are inferred from tool names, descriptions and annotations; they may be wrong. | No tool was invoked, so no data flow was observed. | A trifecta indicator is not a vulnerability and must not be reported as one.\nEvidence: tools/list → capability composition",
+      "object_refs": [
+        "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+        "vulnerability--8774ea0c-a427-5c73-a45e-d92e28cca840"
+      ],
+      "x_mcp_observatory": {
+        "assertion": "inferred",
+        "confidence": "low",
+        "snapshot_fingerprint": "89bdd97466894aed37ec3427"
+      }
+    },
+    {
+      "type": "vulnerability",
+      "spec_version": "2.1",
+      "id": "vulnerability--ee1e9005-f72a-5ecb-b4c8-705d68de9ae9",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "name": "TOOL-002: Tool metadata contains language aimed at the model",
+      "description": "1 metadata field matched narrow injection heuristics: tools[get_notes].description (instruction-override, credential-path).",
+      "external_references": [
+        {
+          "source_name": "OWASP MCP Top 10",
+          "external_id": "MCP03",
+          "url": "https://owasp.org/projects/mcp-top-10"
+        },
+        {
+          "source_name": "OWASP MCP Top 10",
+          "external_id": "MCP06",
+          "url": "https://owasp.org/projects/mcp-top-10"
+        }
+      ],
+      "x_mcp_observatory": {
+        "check_id": "TOOL-002",
+        "severity": "medium",
+        "confidence": "moderate",
+        "assertion": "inferred",
+        "fingerprint": "81627f053a9b1948",
+        "taxonomy": [
+          "supply-chain",
+          "prompt-injection"
+        ]
+      }
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--2e18c95f-208d-5696-a84f-16070356bbb6",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "relationship_type": "has",
+      "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+      "target_ref": "vulnerability--ee1e9005-f72a-5ecb-b4c8-705d68de9ae9"
+    },
+    {
+      "type": "note",
+      "spec_version": "2.1",
+      "id": "note--06e6114c-3cbc-5ed8-841c-589c193e0589",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "abstract": "TOOL-002 evidence for 127.0.0.1:8787",
+      "content": "Observation: 1 metadata field matched narrow injection heuristics: tools[get_notes].description (instruction-override, credential-path).\nInference: Text in tool metadata may be intended to steer the model rather than describe the tool. This is a signal, not proof of malice.\nRecommendation: Review the matched fields manually. If the wording is not justified by the tool's function, treat the server as untrusted until the publisher explains it. Prefer servers that pin tool definitions by hash.\nLimitations: Pattern matching cannot distinguish adversarial metadata from unusual but legitimate documentation. | Novel or paraphrased instructions will not be detected. | Absence of a match is not evidence of safety.\nEvidence: tools[get_notes].description",
+      "object_refs": [
+        "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+        "vulnerability--ee1e9005-f72a-5ecb-b4c8-705d68de9ae9"
+      ],
+      "x_mcp_observatory": {
+        "assertion": "inferred",
+        "confidence": "moderate",
+        "snapshot_fingerprint": "89bdd97466894aed37ec3427"
+      }
+    },
+    {
+      "type": "vulnerability",
+      "spec_version": "2.1",
+      "id": "vulnerability--abceabd3-79cb-5492-bf53-0ec49e60af25",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "name": "PROTO-001: Discovery methods are unimplemented rather than empty",
+      "description": "prompts/list returned JSON-RPC -32601 (Method not found).",
+      "external_references": [
+        {
+          "source_name": "mcp-threat-observatory",
+          "external_id": "interoperability",
+          "url": ""
+        }
+      ],
+      "x_mcp_observatory": {
+        "check_id": "PROTO-001",
+        "severity": "low",
+        "confidence": "high",
+        "assertion": "observed",
+        "fingerprint": "c1def9fd5889acd3",
+        "taxonomy": [
+          "interoperability"
+        ]
+      }
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--646c78e5-909e-5bc9-ae0c-1319624118ea",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "relationship_type": "has",
+      "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+      "target_ref": "vulnerability--abceabd3-79cb-5492-bf53-0ec49e60af25"
+    },
+    {
+      "type": "note",
+      "spec_version": "2.1",
+      "id": "note--202f6a37-cb2c-5789-9511-05c6eb52f7f7",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "abstract": "PROTO-001 evidence for 127.0.0.1:8787",
+      "content": "Observation: prompts/list returned JSON-RPC -32601 (Method not found).\nInference: Tooling that enumerates capabilities will report the server as partially broken, and marketplace listings may be rejected or incomplete.\nRecommendation: Return an empty array ({ resources: [] } / { prompts: [] }) when the capability is not offered.\nLimitations: This affects interoperability, not the security of the server itself.\nEvidence: prompts/list → -32601",
+      "object_refs": [
+        "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+        "vulnerability--abceabd3-79cb-5492-bf53-0ec49e60af25"
+      ],
+      "x_mcp_observatory": {
+        "assertion": "observed",
+        "confidence": "high",
+        "snapshot_fingerprint": "89bdd97466894aed37ec3427"
+      }
+    },
+    {
+      "type": "vulnerability",
+      "spec_version": "2.1",
+      "id": "vulnerability--14f21851-7a52-5ff7-84dc-11ee7ef66853",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "name": "TOOL-003: Tool input schemas accept unconstrained input",
+      "description": "3 of 4 tools accept an unconstrained string parameter; 2 use an object schema without additionalProperties: false. High-impact tools affected: send_email.",
+      "external_references": [
+        {
+          "source_name": "OWASP MCP Top 10",
+          "external_id": "MCP05",
+          "url": "https://owasp.org/projects/mcp-top-10"
+        },
+        {
+          "source_name": "OWASP MCP Top 10",
+          "external_id": "MCP02",
+          "url": "https://owasp.org/projects/mcp-top-10"
+        }
+      ],
+      "x_mcp_observatory": {
+        "check_id": "TOOL-003",
+        "severity": "low",
+        "confidence": "high",
+        "assertion": "observed",
+        "fingerprint": "d67003658fc5e980",
+        "taxonomy": [
+          "input-validation"
+        ]
+      }
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--174ff1d1-459f-5bf0-831c-b707708db010",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "relationship_type": "has",
+      "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+      "target_ref": "vulnerability--14f21851-7a52-5ff7-84dc-11ee7ef66853"
+    },
+    {
+      "type": "note",
+      "spec_version": "2.1",
+      "id": "note--2b6f1565-2a33-5707-aa39-edb3ac11a3b2",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "abstract": "TOOL-003 evidence for 127.0.0.1:8787",
+      "content": "Observation: 3 of 4 tools accept an unconstrained string parameter; 2 use an object schema without additionalProperties: false. High-impact tools affected: send_email.\nInference: Unconstrained input widens the path from model output to a shell, a query, a filesystem path or an outbound request.\nRecommendation: Set additionalProperties: false and constrain every string parameter with enum, pattern, format or maxLength.\nLimitations: Schema strictness is a proxy: a strict schema does not guarantee safe handling downstream.\nEvidence: tools/list → inputSchema",
+      "object_refs": [
+        "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+        "vulnerability--14f21851-7a52-5ff7-84dc-11ee7ef66853"
+      ],
+      "x_mcp_observatory": {
+        "assertion": "observed",
+        "confidence": "high",
+        "snapshot_fingerprint": "89bdd97466894aed37ec3427"
+      }
+    },
+    {
+      "type": "vulnerability",
+      "spec_version": "2.1",
+      "id": "vulnerability--d3850a2d-5926-5d82-8f19-d24f59ab1808",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "name": "TOOL-001: Tool metadata is incomplete",
+      "description": "Of 4 tools: 0 have no annotations, 4 have no title, 0 have no description.",
+      "external_references": [
+        {
+          "source_name": "OWASP MCP Top 10",
+          "external_id": "MCP03",
+          "url": "https://owasp.org/projects/mcp-top-10"
+        },
+        {
+          "source_name": "OWASP MCP Top 10",
+          "external_id": "MCP02",
+          "url": "https://owasp.org/projects/mcp-top-10"
+        }
+      ],
+      "x_mcp_observatory": {
+        "check_id": "TOOL-001",
+        "severity": "info",
+        "confidence": "high",
+        "assertion": "observed",
+        "fingerprint": "fd9a935f57dd05c1",
+        "taxonomy": [
+          "metadata-quality"
+        ]
+      }
+    },
+    {
+      "type": "relationship",
+      "spec_version": "2.1",
+      "id": "relationship--6fa0598e-c2b1-5381-a1d6-61d39dd05adb",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "relationship_type": "has",
+      "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+      "target_ref": "vulnerability--d3850a2d-5926-5d82-8f19-d24f59ab1808"
+    },
+    {
+      "type": "note",
+      "spec_version": "2.1",
+      "id": "note--37ea62cd-eaaa-5e6b-92c1-58a0bb2595be",
+      "created": "2026-11-22T15:29:59.824Z",
+      "modified": "2026-11-22T15:29:59.824Z",
+      "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
+      "object_marking_refs": [
+        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+      ],
+      "abstract": "TOOL-001 evidence for 127.0.0.1:8787",
+      "content": "Observation: Of 4 tools: 0 have no annotations, 4 have no title, 0 have no description.\nInference: Clients cannot warn users about destructive or open-world behaviour, and LLM tool selection relies on descriptions that are missing.\nRecommendation: Annotate every tool with title, readOnlyHint, destructiveHint, idempotentHint and openWorldHint, and write a description that states when the tool should and should not be used.\nLimitations: Annotations are hints, not enforcement; correct annotation does not imply correct behaviour.\nEvidence: tools/list → annotations/title/description",
+      "object_refs": [
+        "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
+        "vulnerability--d3850a2d-5926-5d82-8f19-d24f59ab1808"
+      ],
+      "x_mcp_observatory": {
+        "assertion": "observed",
+        "confidence": "high",
+        "snapshot_fingerprint": "89bdd97466894aed37ec3427"
+      }
+    }
+  ]
+}

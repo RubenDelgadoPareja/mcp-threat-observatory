@@ -1,0 +1,14 @@
+# Targets for batch collection.
+#
+# Rules:
+#   - only servers you operate or are authorised to test
+#   - one absolute URL per line
+#   - comments start with #
+#
+# The CLI still requires --authorized. This file is not a permission list.
+
+# Local development fixture
+http://127.0.0.1:8787/mcp
+
+# Example of a server you own:
+# https://mcp.example.com/mcp

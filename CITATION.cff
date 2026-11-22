@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this collector or its data model in research, please cite it."
+title: "mcp-threat-observatory"
+abstract: >-
+  Passive, evidence-graded observation of Model Context Protocol endpoints.
+  Produces immutable snapshots with separate observation and inference fields,
+  per-finding confidence, explicit limitations, and STIX 2.1 export.
+type: software
+license: MIT
+version: 0.1.0
+date-released: "2026-11-22"
+keywords:
+  - mcp
+  - model-context-protocol
+  - threat-intelligence
+  - supply-chain
+  - stix

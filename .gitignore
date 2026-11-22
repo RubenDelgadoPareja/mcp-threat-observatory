@@ -1,0 +1,17 @@
+node_modules/
+dist/
+coverage/
+*.log
+
+# Collected data is evidence, not source. Keep it out of git by default.
+snapshots/
+*.snapshot.json
+
+# Local configuration
+.env
+.env.local
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/

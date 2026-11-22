@@ -1,0 +1,50 @@
+{
+  "name": "mcp-threat-observatory",
+  "version": "0.1.0",
+  "description": "Passive, evidence-graded telemetry for the Model Context Protocol server ecosystem.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "mcpobs": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm run test",
+    "prepublishOnly": "npm run check && npm run build"
+  },
+  "dependencies": {
+    "commander": "^15.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsup": "^9.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^5.1.1"
+  },
+  "keywords": [
+    "mcp",
+    "threat-intelligence",
+    "supply-chain",
+    "security",
+    "osint",
+    "stix"
+  ]
+}
