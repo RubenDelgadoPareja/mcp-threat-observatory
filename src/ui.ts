@@ -6,6 +6,7 @@ import { probeServer } from "./collect/probe.ts";
 import { BASE_CSS, renderSnapshotHtml } from "./output/html.ts";
 import { writeSnapshot } from "./output/snapshot.ts";
 import { assertScannableTarget, UnsafeTargetError } from "./safety.ts";
+import { stripUnsafe } from "./lib/sanitize.ts";
 
 export interface UiOptions {
   port?: number;
@@ -145,7 +146,7 @@ ${back}`,
 }
 
 function escape(value: string): string {
-  return value
+  return stripUnsafe(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")

@@ -1,5 +1,4 @@
 import type { ChildProcess } from "node:child_process";
-import { createInterface } from "node:readline";
 
 export class TimeoutError extends Error {
   constructor(message: string) {
@@ -28,6 +27,13 @@ interface JsonRpcMessage {
 }
 
 /**
+ * A single stdio line is bounded. Without this, a server that writes gigabytes
+ * without a newline would be a memory-exhaustion primitive against the
+ * collector — the tool is supposed to survive hostile input, not resample it.
+ */
+export const MAX_LINE_BYTES = 2 * 1024 * 1024;
+
+/**
  * Minimal MCP client over stdio: newline-delimited JSON-RPC 2.0.
  *
  * Deliberately small. The collector needs to drive a server, not to be a
@@ -37,13 +43,14 @@ export class StdioSession {
   private readonly pending = new Map<number, Pending>();
   private nextId = 1;
   private closed = false;
+  private buffer = "";
 
   constructor(
     private readonly child: ChildProcess,
     private readonly defaultTimeoutMs = 5_000,
   ) {
     if (!child.stdout) throw new Error("behaviour: server has no stdout");
-    createInterface({ input: child.stdout }).on("line", (line) => this.onLine(line));
+    child.stdout.on("data", (chunk: Buffer | string) => this.onData(chunk));
     child.on("exit", (code, signal) =>
       this.failAll(new ServerExitError(`server exited (${code ?? signal ?? "unknown"})`)),
     );
@@ -87,8 +94,31 @@ export class StdioSession {
     }
   }
 
+  private onData(chunk: Buffer | string): void {
+    if (this.closed) return;
+    this.buffer += chunk.toString();
+
+    if (this.buffer.length > MAX_LINE_BYTES) {
+      this.buffer = "";
+      this.failAll(new Error(`server output exceeded the ${MAX_LINE_BYTES} byte line limit`));
+      try {
+        this.child.kill("SIGKILL");
+      } catch {
+        /* already gone */
+      }
+      return;
+    }
+
+    let index = this.buffer.indexOf("\n");
+    while (index >= 0) {
+      const line = this.buffer.slice(0, index).replace(/\r$/, "");
+      this.buffer = this.buffer.slice(index + 1);
+      if (line.trim()) this.onLine(line);
+      index = this.buffer.indexOf("\n");
+    }
+  }
+
   private onLine(line: string): void {
-    if (!line.trim()) return;
     let message: JsonRpcMessage;
     try {
       message = JSON.parse(line) as JsonRpcMessage;

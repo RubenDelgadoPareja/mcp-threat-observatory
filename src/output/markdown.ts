@@ -1,4 +1,5 @@
 import type { Snapshot } from "../model.ts";
+import { stripUnsafe } from "../lib/sanitize.ts";
 
 /**
  * Renders a human-readable report.
@@ -119,7 +120,7 @@ export function renderMarkdown(snapshot: Snapshot): string {
   );
   lines.push("");
 
-  return lines.join("\n");
+  return stripUnsafe(lines.join("\n"));
 }
 
 function safeHost(target: string): string {

@@ -1,5 +1,6 @@
 import type { Assessment } from "../assess.ts";
 import type { Finding, Snapshot } from "../model.ts";
+import { stripUnsafe } from "../lib/sanitize.ts";
 
 const SEVERITIES = ["critical", "high", "medium", "low", "info"] as const;
 
@@ -385,7 +386,7 @@ export function renderSnapshotHtml(snapshot: Snapshot): string {
     `<div class="note"><strong>Does not claim</strong> — no tool was invoked, nothing behind the login boundary was observed, and no finding is evidence of intent.</div>`,
   ].join("\n");
 
-  return page(`Passive observation — ${host}`, body, `${snapshot.probe.limitations.length} stated limitations`);
+  return stripUnsafe(page(`Passive observation — ${host}`, body, `${snapshot.probe.limitations.length} stated limitations`));
 }
 
 export function renderAssessmentHtml(assessment: Assessment): string {
@@ -413,7 +414,7 @@ export function renderAssessmentHtml(assessment: Assessment): string {
     .filter(Boolean)
     .join("\n");
 
-  return page(`Assessment — ${target}`, body, "TLP:CLEAR");
+  return stripUnsafe(page(`Assessment — ${target}`, body, "TLP:CLEAR"));
 }
 
 function safeHost(target: string): string {

@@ -235,6 +235,7 @@ Rationale, false-positive behaviour and interpretation for each check:
 - [Behavioural collection](docs/BEHAVIOUR.md)
 - [Drift and the CI gate](docs/DRIFT.md)
 - [Assessment, HTML and the local UI](docs/ASSESS.md)
+- [Threat model of the collector](docs/THREAT-MODEL.md)
 - [Ethics and authorisation](docs/ETHICS.md)
 - [Disclosure policy](docs/DISCLOSURE.md)
 - [Data model and STIX mapping](docs/DATA-MODEL.md)

@@ -1,5 +1,6 @@
 import type { BehaviourRecord } from "./types.ts";
 import type { Finding } from "../model.ts";
+import { stripUnsafe } from "../lib/sanitize.ts";
 
 function safeCommand(record: BehaviourRecord): string {
   return record.target.command.join(" ");
@@ -123,5 +124,5 @@ export function renderBehaviourMarkdown(record: BehaviourRecord, findings: Findi
   for (const limitation of record.limitations) lines.push(`- ${limitation}`);
   lines.push("");
 
-  return lines.join("\n");
+  return stripUnsafe(lines.join("\n"));
 }

@@ -109,6 +109,9 @@ function numberValue(schema: Record<string, unknown>): number {
   return value;
 }
 
+const MAX_DEPTH = 8;
+const MAX_PROPERTIES = 100;
+
 function valueFor(
   schema: unknown,
   seed: number,
@@ -116,7 +119,12 @@ function valueFor(
   locator: string,
   name: string,
   context: ArgumentContext,
+  depth = 0,
 ): unknown {
+  if (depth > MAX_DEPTH) {
+    notes.push(`${locator}: schema nesting exceeded ${MAX_DEPTH} levels; stopped`);
+    return "mcpobs-test";
+  }
   if (!schema || typeof schema !== "object") return "mcpobs-test";
   const node = schema as Record<string, unknown>;
 
@@ -125,7 +133,7 @@ function valueFor(
 
   for (const key of ["oneOf", "anyOf"] as const) {
     if (Array.isArray(node[key]) && node[key].length > 0) {
-      return valueFor((node[key] as unknown[])[0], seed, notes, `${locator}.${key}[0]`, name, context);
+      return valueFor((node[key] as unknown[])[0], seed, notes, `${locator}.${key}[0]`, name, context, depth + 1);
     }
   }
 
@@ -144,7 +152,7 @@ function valueFor(
       notes.push(`${locator}: array left empty to avoid inventing elements`);
       return [];
     case "object":
-      return objectValue(node, seed, notes, locator, context).arguments;
+      return objectValue(node, seed, notes, locator, context, depth + 1).arguments;
     default:
       return "mcpobs-test";
   }
@@ -156,6 +164,7 @@ function objectValue(
   notes: string[],
   locator: string,
   context: ArgumentContext,
+  depth = 0,
 ): GeneratedArguments {
   const out: Record<string, unknown> = {};
   const properties =
@@ -168,7 +177,11 @@ function objectValue(
 
   // In the targeted profile, a path or URL parameter is interesting even when
   // optional: that is exactly where confinement is tested.
-  const optional = Object.keys(properties).filter((key) => !required.includes(key));
+  const declared = Object.keys(properties).slice(0, MAX_PROPERTIES);
+  if (Object.keys(properties).length > MAX_PROPERTIES) {
+    notes.push(`${locator}: schema declares more than ${MAX_PROPERTIES} properties; truncated`);
+  }
+  const optional = declared.filter((key) => !required.includes(key));
   const targetedOptional =
     context.profile === "targeted"
       ? optional.filter((key) => {
@@ -183,7 +196,7 @@ function objectValue(
       notes.push(`${locator}.${key}: required but not declared in properties`);
       continue;
     }
-    out[key] = valueFor(properties[key], seed, notes, `${locator}.${key}`, key, context);
+    out[key] = valueFor(properties[key], seed, notes, `${locator}.${key}`, key, context, depth + 1);
   }
 
   const omitted = optional.filter((key) => !emittedOptional.includes(key));
@@ -212,6 +225,6 @@ export function generateArguments(
       notes: ["schema is not an object; wrapped the generated value under `value`"],
     };
   }
-  const { arguments: args, notes } = objectValue(node, seed, [], "$", context);
+  const { arguments: args, notes } = objectValue(node, seed, [], "$", context, 0);
   return { arguments: args, notes };
 }

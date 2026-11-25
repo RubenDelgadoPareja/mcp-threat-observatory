@@ -1,6 +1,7 @@
 import { severityRank } from "./checks/types.ts";
 import { shortHash } from "./lib/id.ts";
 import type { Finding, Snapshot, ToolAnnotations, ToolDescriptor } from "./model.ts";
+import { stripUnsafe } from "./lib/sanitize.ts";
 
 export interface ToolChange {
   name: string;
@@ -262,7 +263,7 @@ export function renderDrift(report: DriftReport): string {
   if (!report.changed) {
     lines.push("No change observed between the two records.");
     lines.push("");
-    return lines.join("\n");
+    return stripUnsafe(lines.join("\n"));
   }
 
   if (report.toolChanges.length > 0) {
@@ -306,5 +307,5 @@ export function renderDrift(report: DriftReport): string {
     lines.push("");
   }
 
-  return lines.join("\n");
+  return stripUnsafe(lines.join("\n"));
 }

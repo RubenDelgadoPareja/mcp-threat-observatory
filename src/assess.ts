@@ -3,6 +3,7 @@ import { shortHash } from "./lib/id.ts";
 import type { Finding, Snapshot } from "./model.ts";
 import { analyseBehaviour } from "./behaviour/analyser.ts";
 import type { BehaviourRecord } from "./behaviour/types.ts";
+import { stripUnsafe } from "./lib/sanitize.ts";
 
 export type FindingOrigin = "passive" | "behaviour";
 export type LinkAssertion = "operator-asserted" | "url-only" | "command-only";
@@ -175,5 +176,5 @@ export function renderAssessmentMarkdown(assessment: Assessment): string {
   for (const limitation of assessment.limitations) lines.push(`- ${limitation}`);
   lines.push("");
 
-  return lines.join("\n");
+  return stripUnsafe(lines.join("\n"));
 }

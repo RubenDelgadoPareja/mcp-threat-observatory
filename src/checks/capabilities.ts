@@ -29,8 +29,10 @@ function text(tool: ToolDescriptor): string {
 export function collectSchemaStrings(
   schema: unknown,
   path = "$",
+  depth = 0,
 ): Array<{ path: string; text: string }> {
   const out: Array<{ path: string; text: string }> = [];
+  if (depth > 8) return out;
   if (!schema || typeof schema !== "object") return out;
   const node = schema as Record<string, unknown>;
 
@@ -47,18 +49,18 @@ export function collectSchemaStrings(
 
   if (node.properties && typeof node.properties === "object") {
     for (const [name, child] of Object.entries(node.properties as Record<string, unknown>)) {
-      out.push(...collectSchemaStrings(child, `${path}.properties.${name}`));
+      out.push(...collectSchemaStrings(child, `${path}.properties.${name}`, depth + 1));
     }
   }
   if (Array.isArray(node.items)) {
-    node.items.forEach((child, index) => out.push(...collectSchemaStrings(child, `${path}.items[${index}]`)));
+    node.items.forEach((child, index) => out.push(...collectSchemaStrings(child, `${path}.items[${index}]`, depth + 1)));
   } else if (node.items) {
-    out.push(...collectSchemaStrings(node.items, `${path}.items`));
+    out.push(...collectSchemaStrings(node.items, `${path}.items`, depth + 1));
   }
   for (const key of ["anyOf", "oneOf", "allOf"]) {
     const variants = node[key];
     if (Array.isArray(variants)) {
-      variants.forEach((child, index) => out.push(...collectSchemaStrings(child, `${path}.${key}[${index}]`)));
+      variants.forEach((child, index) => out.push(...collectSchemaStrings(child, `${path}.${key}[${index}]`, depth + 1)));
     }
   }
   return out;
@@ -67,8 +69,8 @@ export function collectSchemaStrings(
 /** Returns true when a JSON Schema for a tool allows arbitrary string input. */
 export function hasUnconstrainedString(schema: unknown): boolean {
   let found = false;
-  const walk = (node: unknown): void => {
-    if (found || !node || typeof node !== "object") return;
+  const walk = (node: unknown, depth = 0): void => {
+    if (found || depth > 8 || !node || typeof node !== "object") return;
     const n = node as Record<string, unknown>;
     if (n.type === "string") {
       const constrained =
@@ -82,11 +84,11 @@ export function hasUnconstrainedString(schema: unknown): boolean {
       }
     }
     if (n.properties && typeof n.properties === "object") {
-      Object.values(n.properties as Record<string, unknown>).forEach(walk);
+      Object.values(n.properties as Record<string, unknown>).forEach((child) => walk(child, depth + 1));
     }
-    if (n.items) walk(n.items);
+    if (n.items) walk(n.items, depth + 1);
     for (const key of ["anyOf", "oneOf", "allOf"]) {
-      if (Array.isArray(n[key])) (n[key] as unknown[]).forEach(walk);
+      if (Array.isArray(n[key])) (n[key] as unknown[]).forEach((child) => walk(child, depth + 1));
     }
   };
   walk(schema);
