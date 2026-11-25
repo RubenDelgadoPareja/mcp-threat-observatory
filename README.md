@@ -25,6 +25,8 @@ MEDIUM  BEHAV-003  read .env
 The same run against a server that only echoes produces **zero findings**. That
 contrast is the point: an instrument that always alerts observes nothing.
 
+**Live showcase:** https://rubendelgadopareja.github.io/mcp-threat-observatory/
+
 **Read the method note:** [Evidence, not verdicts](notes/2026-11-evidence-not-verdicts.md)
 — why the record matters more than the verdict, what the tool cannot see, and how
 to check every claim.

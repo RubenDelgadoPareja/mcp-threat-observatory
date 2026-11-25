@@ -11,6 +11,9 @@ to lose a technical interview; underclaiming is the fastest way to be forgotten.
 
 If someone only reads one line, that is the line.
 
+Live showcase (landing plus nine generated reports):
+https://rubendelgadopareja.github.io/mcp-threat-observatory/
+
 ## CV
 
 **One line**
