@@ -22,8 +22,8 @@
   },
   "files": [
     "dist",
-    "examples",
     "runtime",
+    "examples/demo-server.mjs",
     "docs",
     "README.md",
     "LICENSE"
