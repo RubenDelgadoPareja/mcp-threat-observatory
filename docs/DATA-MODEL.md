@@ -150,7 +150,7 @@ time, for the same reason.
 2. **`confidence` is not a common property in STIX 2.1.** Grading therefore
    lives in an `x_mcp_observatory` extension rather than being smuggled into a
    standard field. Custom properties with the `x_` prefix are explicitly
-   permitted.
+   permitted; the reference parser needs `allow_custom=True` to accept them.
 
 A future version may emit `x-mcp-server` SCOs for the endpoint and its tools
 once the community converges on a representation.

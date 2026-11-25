@@ -148,7 +148,9 @@ def validate_bundle(path: str | Path, deep: bool = False) -> ValidationResult:
             result.deep_note = 'install stix2: pip install "mcpobs-analysis[stix]"'
         else:
             try:
-                stix2.parse(text, version="2.1")
+                # STIX 2.1 permits `x_`-prefixed custom properties; the reference
+                # parser only accepts them when explicitly told to.
+                stix2.parse(text, version="2.1", allow_custom=True)
                 result.deep_used = True
             except Exception as error:  # the library raises several types
                 result.issues.append(f"stix2 rejected the bundle: {error}")

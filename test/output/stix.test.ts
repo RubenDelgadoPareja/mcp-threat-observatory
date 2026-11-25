@@ -15,7 +15,7 @@ function bundleFor() {
 }
 
 describe("STIX 2.1 export", () => {
-  it("produces a bundle with a TLP:CLEAR marking", () => {
+  it("produces a bundle with the canonical TLP marking", () => {
     const { bundle } = bundleFor();
     expect(bundle.type).toBe("bundle");
     expect(String(bundle.id)).toMatch(/^bundle--[0-9a-f-]{36}$/);
@@ -24,7 +24,6 @@ describe("STIX 2.1 export", () => {
     expect(marking?.id).toBe("marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9");
     expect(marking?.name).toBe("TLP:WHITE");
     expect(marking?.definition).toEqual({ tlp: "white" });
-    expect(marking?.definition).toEqual({ tlp: "clear" });
   });
 
   it("maps findings to vulnerability, relationship and note objects", () => {
