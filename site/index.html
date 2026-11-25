@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mcp-threat-observatory — evidence, not verdicts</title>
+  <meta name="description" content="Open-source observatory for the MCP supply chain: passive metadata collection, isolated behavioural analysis, and drift detection.">
+  <meta name="referrer" content="no-referrer">
+  <link rel="stylesheet" href="assets/app.css">
+</head>
+<body class="bg-ink text-fg font-mono antialiased selection:bg-accent/30">
+
+  <div class="border-b border-line-2/70 text-[10px] tracking-[0.22em] uppercase text-faint">
+    <div class="mx-auto flex max-w-6xl justify-between gap-4 px-5 py-2">
+      <span><span class="text-fg">TLP:CLEAR</span> · public release</span>
+      <span class="hidden sm:inline">observation only · no exploit content</span>
+    </div>
+  </div>
+
+  <main class="mx-auto max-w-6xl px-5">
+
+    <!-- hero -->
+    <section class="grid-bg relative border-b border-line py-16 sm:py-24">
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink/40 via-ink/70 to-ink"></div>
+      <div class="relative">
+        <p class="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-faint">
+          <span class="inline-block h-1.5 w-1.5 bg-low"></span>
+          open source · 144 tests · v0.4
+        </p>
+        <h1 class="max-w-4xl text-3xl leading-tight font-semibold tracking-tight sm:text-5xl">
+          <span class="text-accent">&gt;</span> Evidence, not verdicts
+        </h1>
+        <p class="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
+          An observatory for the MCP supply chain. It records what a server advertises,
+          what it does at runtime, and what changed between two reviews — and grades
+          every claim as <span class="text-fg">observed</span> or
+          <span class="text-fg">inferred</span>, with the blind spots attached.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3 text-sm">
+          <a href="https://github.com/RubenDelgadoPareja/mcp-threat-observatory"
+             class="border border-accent px-4 py-2 uppercase tracking-[0.14em] text-accent transition hover:bg-accent/10">
+            Source
+          </a>
+          <a href="https://github.com/RubenDelgadoPareja/mcp-threat-observatory/blob/master/notes/2026-11-evidence-not-verdicts.md"
+             class="border border-line-2 px-4 py-2 uppercase tracking-[0.14em] text-muted transition hover:border-accent/60 hover:text-fg">
+            Method note
+          </a>
+          <a href="#reports"
+             class="border border-line-2 px-4 py-2 uppercase tracking-[0.14em] text-muted transition hover:border-accent/60 hover:text-fg">
+            Reports
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- terminal -->
+    <section class="border-b border-line py-14">
+      <p class="mb-4 text-[10px] uppercase tracking-[0.24em] text-faint">// three commands</p>
+      <div class="overflow-hidden border border-line bg-panel">
+        <div class="flex items-center gap-2 border-b border-line px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-faint">
+          <span class="h-1.5 w-1.5 bg-low"></span> local collector · 127.0.0.1
+        </div>
+        <pre class="overflow-x-auto px-5 py-5 text-[13px] leading-relaxed"><code><span class="text-faint"># what it advertises</span>
+<span class="text-accent">$</span> npx github:RubenDelgadoPareja/mcp-threat-observatory scan https://server.example/mcp
+
+<span class="text-faint"># what it does, in a network namespace with canary credentials</span>
+<span class="text-accent">$</span> ... behaviour --authorized -- node server.mjs
+
+<span class="text-faint"># what changed since the last review</span>
+<span class="text-accent">$</span> ... drift before.json after.json --fail-on-change</code></pre>
+      </div>
+    </section>
+
+    <!-- modes -->
+    <section class="grid gap-px border-b border-line bg-line py-0 sm:grid-cols-3">
+      <article class="bg-ink p-6">
+        <p class="text-[10px] uppercase tracking-[0.22em] text-faint">01 · passive</p>
+        <h2 class="mt-2 text-lg font-semibold">No code executed</h2>
+        <p class="mt-2 text-sm leading-relaxed text-muted">
+          A client handshake and nothing more: auth posture, tool metadata, schema
+          strictness, discovery semantics, capability composition.
+        </p>
+      </article>
+      <article class="bg-ink p-6">
+        <p class="text-[10px] uppercase tracking-[0.22em] text-faint">02 · behavioural</p>
+        <h2 class="mt-2 text-lg font-semibold">Isolated execution</h2>
+        <p class="mt-2 text-sm leading-relaxed text-muted">
+          The server runs with no network route, a temporary HOME and seven canary
+          credentials. Every tool is invoked once with schema-generated arguments.
+        </p>
+      </article>
+      <article class="bg-ink p-6">
+        <p class="text-[10px] uppercase tracking-[0.22em] text-faint">03 · drift</p>
+        <h2 class="mt-2 text-lg font-semibold">Change you can gate</h2>
+        <p class="mt-2 text-sm leading-relaxed text-muted">
+          Hashes the full tool definition, so a relaxed <code class="text-fg">destructiveHint</code>
+          is caught even when no visible text changes.
+        </p>
+      </article>
+    </section>
+
+    <!-- reports -->
+    <section id="reports" class="py-14">
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.24em] text-faint">// sample reports</p>
+          <h2 class="mt-2 text-xl font-semibold">Generated by the tool, not by hand</h2>
+        </div>
+        <p class="max-w-md text-xs leading-relaxed text-faint">
+          Nine synthetic fixtures, one per posture. No third-party server was contacted.
+          Open any report to see exactly what the collector emits.
+        </p>
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+<!-- REPORTS -->
+      </div>
+    </section>
+
+    <!-- caveat -->
+    <section class="border-t border-line py-10">
+      <div class="border-l-2 border-accent bg-accent/5 p-5 text-sm leading-relaxed text-muted">
+        <strong class="text-fg uppercase tracking-[0.12em] text-xs">What this does not claim</strong>
+        <p class="mt-2">
+          No third-party server was contacted and no third-party package was executed for
+          these reports. A finding is a signal for review, not a verdict about a publisher.
+          Behavioural mode isolates the network only; filesystem containment is on the roadmap.
+        </p>
+      </div>
+    </section>
+
+    <footer class="flex flex-wrap justify-between gap-3 border-t border-line-2/70 py-8 text-[10px] uppercase tracking-[0.18em] text-faint">
+      <span>EOF · built by hand · TLP:CLEAR</span>
+      <span class="flex gap-5">
+        <a class="transition hover:text-fg" href="https://github.com/RubenDelgadoPareja/mcp-threat-observatory">github</a>
+        <a class="transition hover:text-fg" href="https://github.com/RubenDelgadoPareja/mcp-threat-observatory/blob/master/docs/ETHICS.md">ethics</a>
+        <a class="transition hover:text-fg" href="https://github.com/RubenDelgadoPareja/mcp-threat-observatory/blob/master/docs/DISCLOSURE.md">disclosure</a>
+      </span>
+    </footer>
+  </main>
+</body>
+</html>

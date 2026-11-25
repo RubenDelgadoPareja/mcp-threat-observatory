@@ -25,3 +25,6 @@ skills-lock.json
 
 # Private corpus mapping: publishing it would de-anonymise the study
 corpus.local.json
+
+# Built showcase
+site/public/

@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@source "./index.html";
+@source "./public/index.html";
+@source "./build.mjs";
+
+@theme {
+  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --color-ink: #07090b;
+  --color-panel: #0b0e11;
+  --color-panel-2: #0e1216;
+  --color-line: #1c242a;
+  --color-line-2: #2b363e;
+  --color-fg: #cfd8da;
+  --color-muted: #82909a;
+  --color-faint: #5a6870;
+  --color-accent: #3fe0ff;
+
+  --color-critical: #ff4d4d;
+  --color-high: #ff8a3d;
+  --color-medium: #ffc93c;
+  --color-low: #39e08a;
+}
+
+@layer base {
+  body {
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+}
+
+@layer utilities {
+  .grid-bg {
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--color-fg) 3%, transparent) 0 1px,
+      transparent 1px 3px
+    );
+  }
+}

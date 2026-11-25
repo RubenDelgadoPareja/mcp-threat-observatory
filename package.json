@@ -38,13 +38,16 @@
     "test:watch": "vitest",
     "check": "npm run typecheck && npm run test",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run check && npm run build"
+    "prepublishOnly": "npm run check && npm run build",
+    "site": "npm run build && node site/build.mjs"
   },
   "dependencies": {
     "commander": "^15.1.0"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.3.5",
     "@types/node": "^24.0.0",
+    "tailwindcss": "^4.3.5",
     "tsup": "^9.0.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0",
