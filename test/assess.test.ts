@@ -13,6 +13,7 @@ function behaviourRecord(): BehaviourRecord {
   return {
     schemaVersion: "1",
     kind: "behaviour",
+    argumentProfile: "neutral",
     collectedAt: "2026-11-22T00:00:00.000Z",
     target: { command: ["node", "/abs/server.mjs"], cwd: "/tmp/work" },
     isolation: { mechanism: "unshare-rn", network: "isolated" },

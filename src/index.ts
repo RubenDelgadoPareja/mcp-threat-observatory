@@ -29,7 +29,7 @@ export { startUiServer, type UiOptions, type UiServer } from "./ui.ts";
 
 export { runBehaviour, canIsolateNetwork, type RunBehaviourOptions } from "./behaviour/runner.ts";
 export { analyseBehaviour, BEHAVIOUR_RULES, type BehaviourRule } from "./behaviour/analyser.ts";
-export { generateArguments, type GeneratedArguments } from "./behaviour/args.ts";
+export { generateArguments, type ArgumentContext, type ArgumentProfile, type GeneratedArguments } from "./behaviour/args.ts";
 export { createSandboxEnvironment, disposeSandboxEnvironment, findHookPath } from "./behaviour/canaries.ts";
 export { buildArtefact, writeBehaviourArtefact, artefactFingerprint, type BehaviourArtefact } from "./behaviour/artefact.ts";
 export { renderBehaviourMarkdown } from "./behaviour/report.ts";

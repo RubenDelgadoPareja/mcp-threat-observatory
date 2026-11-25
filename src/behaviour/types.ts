@@ -49,6 +49,8 @@ export interface BehaviourRecord {
   schemaVersion: typeof BEHAVIOUR_SCHEMA_VERSION;
   kind: "behaviour";
   collectedAt: string;
+  /** How tool arguments were generated. */
+  argumentProfile: "neutral" | "targeted";
   target: { command: string[]; cwd: string };
   isolation: { mechanism: IsolationMechanism; network: NetworkIsolation };
   environment: { home: string; seed: number; canaries: Canary[] };

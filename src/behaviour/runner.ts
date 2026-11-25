@@ -1,6 +1,6 @@
 import { execFileSync, spawn, type ChildProcess } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { generateArguments } from "./args.ts";
+import { generateArguments, type ArgumentContext, type ArgumentProfile } from "./args.ts";
 import { absolutizeCommand } from "./command.ts";
 import {
   createSandboxEnvironment,
@@ -26,6 +26,8 @@ export interface RunBehaviourOptions {
   toolTimeoutMs?: number;
   /** Required to run without a network namespace. */
   allowUnisolated?: boolean;
+  /** `targeted` substitutes canary paths and URLs for path/URL parameters. */
+  profile?: ArgumentProfile;
   seed?: number;
   keepWorkspace?: boolean;
 }
@@ -130,12 +132,18 @@ export async function runBehaviour(options: RunBehaviourOptions): Promise<Behavi
   }
 
   const seed = options.seed ?? 1;
+  const profile: ArgumentProfile = options.profile ?? "neutral";
   const timeoutMs = options.timeoutMs ?? 60_000;
   const toolTimeoutMs = options.toolTimeoutMs ?? 5_000;
   const isolation = resolveIsolation(options.allowUnisolated === true);
   const sandbox: SandboxEnvironment = createSandboxEnvironment();
   const collectedAt = new Date().toISOString();
   const command = absolutizeCommand(options.command);
+  const argumentContext: ArgumentContext = {
+    profile,
+    canaryPaths: sandbox.canaries.filter((canary) => canary.kind === "file").map((canary) => canary.locator),
+    canaryUrl: "https://canary.example.test/probe",
+  };
 
   const limitations: string[] = [
     "The hook observes Node APIs only: native addons, worker threads with an independent loader, and spawned non-Node processes can bypass it.",
@@ -189,7 +197,7 @@ export async function runBehaviour(options: RunBehaviourOptions): Promise<Behavi
 
         for (const definition of definitions) {
           const name = typeof definition.name === "string" ? definition.name : "(unnamed)";
-          const generated = generateArguments(definition.inputSchema, seed);
+          const generated = generateArguments(definition.inputSchema, seed, argumentContext);
           const startedAt = new Date().toISOString();
           const started = Date.now();
           let outcome: ToolInvocation["outcome"] = "result";
@@ -257,6 +265,7 @@ export async function runBehaviour(options: RunBehaviourOptions): Promise<Behavi
     schemaVersion: BEHAVIOUR_SCHEMA_VERSION,
     kind: "behaviour",
     collectedAt,
+    argumentProfile: profile,
     target: { command, cwd: sandbox.workdir },
     isolation: { mechanism: isolation.mechanism, network: isolation.network },
     environment: { home: sandbox.home, seed, canaries: sandbox.canaries },

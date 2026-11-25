@@ -8,6 +8,7 @@ function record(overrides: Partial<BehaviourRecord> = {}): BehaviourRecord {
   return {
     schemaVersion: "1",
     kind: "behaviour",
+    argumentProfile: "neutral",
     collectedAt: "2026-11-22T00:00:00.000Z",
     target: TARGET,
     isolation: { mechanism: "unshare-rn", network: "isolated" },
@@ -60,6 +61,26 @@ describe("analyseBehaviour", () => {
     expect(finding?.observation).toContain("get_notes");
     expect(finding?.limitations.join(" ")).toMatch(/not proof of intent/i);
     expect(finding?.evidence[0]?.excerpt).toContain("CANARY-");
+  });
+
+  it("does not claim a destination when the write was never bound to a peer", () => {
+    const findings = analyseBehaviour(
+      record({
+        events: [
+          {
+            at: "2026-11-22T00:00:01.500Z",
+            type: "net.write",
+            canaryIds: ["CANARY-aaaaaaaaaaaaaaaa"],
+            bytes: 200,
+          },
+        ],
+      }),
+    );
+    const finding = findings.find((candidate) => candidate.checkId === "BEHAV-001");
+    expect(finding?.observation).toContain("destination was not observed");
+    expect(finding?.confidence).toBe("moderate");
+    expect(finding?.limitations.join(" ")).toContain("cannot have left the machine");
+    expect(finding?.limitations.join(" ")).toContain("not attributed to a peer");
   });
 
   it("attributes an event outside any tool call honestly", () => {

@@ -64,18 +64,31 @@ would trip it. The finding says so, every time.
 
 ## Argument generation
 
-Arguments come from each tool's JSON Schema, deterministically:
+Arguments come from each tool's JSON Schema, deterministically, in one of two
+profiles:
 
-- only `required` properties; optional ones are omitted and noted;
+| Profile | String parameters | Measures |
+| --- | --- | --- |
+| `neutral` | `mcpobs-test` | default behaviour |
+| `targeted` | canary paths for path-like parameters, a dead host for URL-like ones | whether the server stays inside its configured root |
+
+Rules that apply in both profiles:
+
+- only `required` properties, except that `targeted` also fills optional path and
+  URL parameters, because that is where confinement is tested;
 - `enum` → an element selected by the seed;
 - `integer`/`number` → the schema minimum, clamped to the maximum;
 - `boolean` → `false`, so the sandbox never opts into a destructive path;
 - `string` → `format`-aware values, truncated to `maxLength`;
 - `pattern` that cannot be synthesised → a plain string, with a note.
 
-No model is involved. The same schema and seed produce the same call, so anyone
-can reproduce the run. The notes are stored per tool call, because a tool that
+No model is involved. The same schema, seed and profile produce the same call, so
+anyone can reproduce the run. Notes are stored per tool call, because a tool that
 errored on a generated value exercised a different path than one that succeeded.
+
+```bash
+mcpobs behaviour --authorized --profile targeted -- node server.mjs
+```
 
 ## What the hook sees
 

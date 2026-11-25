@@ -41,6 +41,7 @@ describe("assessment html", () => {
     const record = {
       schemaVersion: "1" as const,
       kind: "behaviour" as const,
+      argumentProfile: "neutral" as const,
       collectedAt: "2026-11-22T00:00:00.000Z",
       target: { command: ["node", "server.mjs"], cwd: "/tmp" },
       isolation: { mechanism: "unshare-rn" as const, network: "isolated" as const },

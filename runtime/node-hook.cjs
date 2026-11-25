@@ -92,10 +92,12 @@ function install() {
     const ids = canaryIdsIn(chunk);
     if (ids.length > 0) {
       const target = destinations.get(this) ?? {};
+      // `remoteAddress` is only available once the socket is connected, and it
+      // is the only way to attribute a write whose connect() we did not see.
       emit({
         type: "net.write",
-        host: target.host,
-        port: target.port,
+        host: target.host ?? this.remoteAddress ?? undefined,
+        port: target.port ?? this.remotePort ?? undefined,
         canaryIds: ids,
         bytes: typeof chunk === "string" ? Buffer.byteLength(chunk) : chunk?.byteLength,
       });

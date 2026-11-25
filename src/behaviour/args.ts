@@ -1,10 +1,27 @@
 /**
  * Deterministic argument generation from a tool's JSON Schema.
  *
- * Determinism is the point: the same schema and seed must produce the same
- * arguments on every run, so a behaviour record can be reproduced by someone
- * who was not there. No model is involved, by design.
+ * Determinism is the point: the same schema, seed and profile must produce the
+ * same arguments on every run, so a behaviour record can be reproduced by
+ * someone who was not there. No model is involved, by design.
+ *
+ * Two profiles:
+ *   - `neutral`   describes the tool's default behaviour ("mcpobs-test").
+ *   - `targeted`  substitutes credential-shaped paths and URLs for parameters
+ *                 that look like a path or a URL, to test whether the server
+ *                 stays inside its configured root. The files it points at are
+ *                 canaries in a temporary HOME, never real credentials.
  */
+
+export type ArgumentProfile = "neutral" | "targeted";
+
+export interface ArgumentContext {
+  profile?: ArgumentProfile;
+  /** Absolute paths of planted canary files. */
+  canaryPaths?: string[];
+  /** A host that does not exist, used for URL-shaped parameters. */
+  canaryUrl?: string;
+}
 
 export interface GeneratedArguments {
   arguments: Record<string, unknown>;
@@ -22,17 +39,48 @@ const FIXED = {
   time: "00:00:00",
 };
 
+const PATH_KEY = /(^|[_-])(path|file|filepath|filename|dir|directory|folder|root|target|source|dest|destination)([_-]|$)/i;
+const URL_KEY = /(url|uri|endpoint|host|webhook|link)/i;
+
 function pickFromEnum(values: unknown[], seed: number): unknown {
   if (values.length === 0) return null;
   const index = (seed - 1) % values.length;
   return values[index < 0 ? 0 : index];
 }
 
-function stringValue(schema: Record<string, unknown>, seed: number, notes: string[], locator: string): string {
+function targetedKind(name: string, schema: Record<string, unknown>): "path" | "url" | null {
+  const format = typeof schema.format === "string" ? schema.format : "";
+  if (format === "uri" || format === "uri-reference" || format === "url") return "url";
+  if (URL_KEY.test(name)) return "url";
+  if (PATH_KEY.test(name)) return "path";
+  return null;
+}
+
+function stringValue(
+  schema: Record<string, unknown>,
+  seed: number,
+  notes: string[],
+  locator: string,
+  name: string,
+  context: ArgumentContext,
+): string {
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
     const chosen = pickFromEnum(schema.enum, seed);
     return typeof chosen === "string" ? chosen : JSON.stringify(chosen);
   }
+
+  if (context.profile === "targeted") {
+    const kind = targetedKind(name, schema);
+    if (kind === "path" && context.canaryPaths?.length) {
+      notes.push(`${locator}: targeted profile substituted a canary path for \`${name}\``);
+      return context.canaryPaths[0]!;
+    }
+    if (kind === "url" && context.canaryUrl) {
+      notes.push(`${locator}: targeted profile substituted a canary URL for \`${name}\``);
+      return context.canaryUrl;
+    }
+  }
+
   const format = typeof schema.format === "string" ? schema.format : undefined;
   if (format && format in FIXED) {
     let value = FIXED[format as keyof typeof FIXED];
@@ -61,23 +109,30 @@ function numberValue(schema: Record<string, unknown>): number {
   return value;
 }
 
-function valueFor(schema: unknown, seed: number, notes: string[], locator: string): unknown {
+function valueFor(
+  schema: unknown,
+  seed: number,
+  notes: string[],
+  locator: string,
+  name: string,
+  context: ArgumentContext,
+): unknown {
   if (!schema || typeof schema !== "object") return "mcpobs-test";
   const node = schema as Record<string, unknown>;
 
-  if (schema && "const" in node) return node.const;
-  if (typeof node.default !== "undefined") return node.default;
+  if ("const" in node) return node.const;
+  if (typeof node.default !== "undefined" && context.profile !== "targeted") return node.default;
 
   for (const key of ["oneOf", "anyOf"] as const) {
     if (Array.isArray(node[key]) && node[key].length > 0) {
-      return valueFor((node[key] as unknown[])[0], seed, notes, `${locator}.${key}[0]`);
+      return valueFor((node[key] as unknown[])[0], seed, notes, `${locator}.${key}[0]`, name, context);
     }
   }
 
   const type = typeof node.type === "string" ? node.type : Array.isArray(node.type) ? node.type[0] : undefined;
   switch (type) {
     case "string":
-      return stringValue(node, seed, notes, locator);
+      return stringValue(node, seed, notes, locator, name, context);
     case "integer":
       return Math.trunc(numberValue(node));
     case "number":
@@ -89,7 +144,7 @@ function valueFor(schema: unknown, seed: number, notes: string[], locator: strin
       notes.push(`${locator}: array left empty to avoid inventing elements`);
       return [];
     case "object":
-      return objectValue(node, seed, notes, locator).arguments;
+      return objectValue(node, seed, notes, locator, context).arguments;
     default:
       return "mcpobs-test";
   }
@@ -100,6 +155,7 @@ function objectValue(
   seed: number,
   notes: string[],
   locator: string,
+  context: ArgumentContext,
 ): GeneratedArguments {
   const out: Record<string, unknown> = {};
   const properties =
@@ -110,19 +166,30 @@ function objectValue(
     ? schema.required.filter((key): key is string => typeof key === "string")
     : [];
 
-  for (const key of required) {
+  // In the targeted profile, a path or URL parameter is interesting even when
+  // optional: that is exactly where confinement is tested.
+  const optional = Object.keys(properties).filter((key) => !required.includes(key));
+  const targetedOptional =
+    context.profile === "targeted"
+      ? optional.filter((key) => {
+          const node = properties[key];
+          return !!node && typeof node === "object" && targetedKind(key, node as Record<string, unknown>) !== null;
+        })
+      : [];
+  const emittedOptional = targetedOptional;
+
+  for (const key of [...required, ...emittedOptional]) {
     if (!(key in properties)) {
       notes.push(`${locator}.${key}: required but not declared in properties`);
       continue;
     }
-    out[key] = valueFor(properties[key], seed, notes, `${locator}.${key}`);
+    out[key] = valueFor(properties[key], seed, notes, `${locator}.${key}`, key, context);
   }
 
-  const optional = Object.keys(properties).filter((key) => !required.includes(key));
-  if (optional.length > 0) {
-    notes.push(`${locator}: omitted optional ${optional.join(", ")} to keep the call minimal`);
+  const omitted = optional.filter((key) => !emittedOptional.includes(key));
+  if (omitted.length > 0) {
+    notes.push(`${locator}: omitted optional ${omitted.join(", ")} to keep the call minimal`);
   }
-
   if (schema.additionalProperties === true) {
     notes.push(`${locator}: schema allows additional properties; none were sent`);
   }
@@ -130,17 +197,21 @@ function objectValue(
 }
 
 /** Generates the arguments for one tool call. */
-export function generateArguments(schema: unknown, seed = 1): GeneratedArguments {
+export function generateArguments(
+  schema: unknown,
+  seed = 1,
+  context: ArgumentContext = {},
+): GeneratedArguments {
   if (!schema || typeof schema !== "object") {
     return { arguments: {}, notes: ["no input schema: called with no arguments"] };
   }
   const node = schema as Record<string, unknown>;
   if (node.type !== "object") {
     return {
-      arguments: { value: valueFor(node, seed, [], "value") },
+      arguments: { value: valueFor(node, seed, [], "value", "value", context) },
       notes: ["schema is not an object; wrapped the generated value under `value`"],
     };
   }
-  const { arguments: args, notes } = objectValue(node, seed, [], "$");
+  const { arguments: args, notes } = objectValue(node, seed, [], "$", context);
   return { arguments: args, notes };
 }

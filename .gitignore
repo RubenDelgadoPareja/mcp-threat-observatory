@@ -22,3 +22,6 @@ skills-lock.json
 
 # Behavioural artefacts
 /behaviour/
+
+# Private corpus mapping: publishing it would de-anonymise the study
+corpus.local.json

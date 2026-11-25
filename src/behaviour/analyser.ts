@@ -118,25 +118,47 @@ export function analyseBehaviour(record: BehaviourRecord): Finding[] {
   }
   for (const [key, group] of grouped) {
     const ids = [...group.ids].sort();
-    const destination = `${group.host ?? "unknown host"}${group.port ? `:${group.port}` : ""}`;
+    const destination = group.host
+      ? `${group.host}${group.port ? `:${group.port}` : ""}`
+      : null;
     const tool = toolAt(record, group.first.at);
     findings.push(
       build(record, rule("BEHAV-001"), {
         severity: "high",
-        confidence: "high",
+        confidence: group.host ? "high" : "moderate",
         assertion: "observed",
-        observation:
-          `During ${describeTool(tool)}, the server wrote ${ids.length} canary value` +
-          `${ids.length === 1 ? "" : "s"} (${ids.join(", ")}) to ${destination}.`,
+        observation: destination
+          ? `During ${describeTool(tool)}, the server wrote ${ids.length} canary value` +
+            `${ids.length === 1 ? "" : "s"} (${ids.join(", ")}) to ${destination}.`
+          : `During ${describeTool(tool)}, the server wrote ${ids.length} canary value` +
+            `${ids.length === 1 ? "" : "s"} (${ids.join(", ")}) to a socket whose destination was not observed.`,
         inference:
-          "Credential material planted for this run left the process and was addressed to a destination " +
-          "that the tool metadata does not describe.",
+          destination
+            ? "Credential material planted for this run left the process and was addressed to a destination " +
+              "that the tool metadata does not describe."
+            : "Credential material was written to a socket, but the record does not bind that socket to a peer. " +
+              "The destination is unknown, so this is not evidence that the value reached a network endpoint.",
         recommendation:
           "Treat the package as untrusted until the destination is explained. Remove the server from any " +
           "environment holding real credentials, and report the package to the registry.",
-        limitations: CANARY_LIMITATIONS,
+        limitations: [
+          ...CANARY_LIMITATIONS,
+          ...(destination
+            ? []
+            : [
+                "The write was not attributed to a peer: the socket had not connected when the payload was queued, " +
+                  "so the destination cannot be named from this record.",
+              ]),
+          ...(record.isolation.network === "isolated"
+            ? ["The run was network-isolated, so this write cannot have left the machine."]
+            : ["The run was not network-isolated, so the write may have reached a real peer."]),
+        ],
         evidence: [
-          { kind: "derived", locator: `net.write → ${destination}`, excerpt: ids.join(", ") },
+          {
+            kind: "derived",
+            locator: destination ? `net.write → ${destination}` : "net.write → destination not observed",
+            excerpt: ids.join(", "),
+          },
         ],
         discriminator: key,
       }),

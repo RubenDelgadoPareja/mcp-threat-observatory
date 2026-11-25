@@ -23,6 +23,7 @@ export function renderBehaviourMarkdown(record: BehaviourRecord, findings: Findi
   lines.push(`- **Command:** \`${safeCommand(record)}\``);
   lines.push(`- **Collected:** ${record.collectedAt}`);
   lines.push(`- **Isolation:** ${record.isolation.mechanism} (network: ${record.isolation.network})`);
+  lines.push(`- **Argument profile:** ${record.argumentProfile}`);
   lines.push(`- **Canaries planted:** ${record.environment.canaries.length}`);
   lines.push(`- **Tools invoked:** ${record.tools.length}`);
   lines.push(`- **Events recorded:** ${record.events.length}`);

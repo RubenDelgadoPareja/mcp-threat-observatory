@@ -158,6 +158,7 @@ program
   .option("--timeout <ms>", "wall-clock budget for the whole run", "60000")
   .option("--tool-timeout <ms>", "budget per tool call", "5000")
   .option("--seed <n>", "deterministic argument seed", "1")
+  .option("--profile <profile>", "neutral | targeted (canary paths in path/URL parameters)", "neutral")
   .option("--json", "print the artefact JSON instead of the report")
   .option("--keep-workspace", "keep the temporary sandbox for inspection")
   .action(async (command: string[], options: Record<string, string | boolean | undefined>) => {
@@ -178,6 +179,7 @@ program
         toolTimeoutMs: Number(options.toolTimeout ?? 5_000),
         allowUnisolated: options.allowUnisolated === true,
         seed: Number(options.seed ?? 1),
+        profile: options.profile === "targeted" ? "targeted" : "neutral",
         keepWorkspace: options.keepWorkspace === true,
       });
       const findings = analyseBehaviour(record);
@@ -264,6 +266,7 @@ program
   .option("--out <dir>", "assessment directory", "assessments")
   .option("--timeout <ms>", "wall-clock budget for the behavioural run", "60000")
   .option("--tool-timeout <ms>", "budget per tool call", "5000")
+  .option("--profile <profile>", "neutral | targeted", "neutral")
   .option("--json", "print the assessment JSON")
   .action(async (command: string[] | undefined, options: Record<string, string | boolean | undefined>) => {
     if (!isAuthorized(options.authorized === true)) {
@@ -293,6 +296,7 @@ program
           timeoutMs: Number(options.timeout ?? 60_000),
           toolTimeoutMs: Number(options.toolTimeout ?? 5_000),
           allowUnisolated: options.allowUnisolated === true,
+          profile: options.profile === "targeted" ? "targeted" : "neutral",
         });
       }
 
