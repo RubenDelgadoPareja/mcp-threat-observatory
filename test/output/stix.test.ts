@@ -21,8 +21,9 @@ describe("STIX 2.1 export", () => {
     expect(String(bundle.id)).toMatch(/^bundle--[0-9a-f-]{36}$/);
     const objects = bundle.objects as Array<Record<string, unknown>>;
     const marking = objects.find((o) => o.type === "marking-definition");
-    expect(marking?.id).toBe("marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f");
-    expect(marking?.name).toBe("TLP:CLEAR");
+    expect(marking?.id).toBe("marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9");
+    expect(marking?.name).toBe("TLP:WHITE");
+    expect(marking?.definition).toEqual({ tlp: "white" });
     expect(marking?.definition).toEqual({ tlp: "clear" });
   });
 

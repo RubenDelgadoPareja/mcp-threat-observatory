@@ -3,10 +3,11 @@ import type { Snapshot } from "../model.ts";
 import { VERSION } from "../version.ts";
 import { snapshotFingerprint } from "./json.ts";
 
-// Canonical STIX 2.1 TLP:CLEAR marking. The old TLP:WHITE id (613f2e26-…) is a
-// different definition and is rejected by the reference implementation.
-const TLP_CLEAR_ID = "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f";
-const TLP_CLEAR_CREATED = "2022-10-01T00:00:00.000Z";
+// TLP 2.0 renamed TLP:WHITE to TLP:CLEAR, but the reference implementation
+// (stix2 3.0.2) still validates the pre-2.0 object. Emitting the canonical
+// WHITE object keeps the bundle interoperable; the profile is the same.
+const TLP_MARKING_ID = "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9";
+const TLP_MARKING_CREATED = "2017-01-20T00:00:00.000Z";
 const CREATED = "2026-01-01T00:00:00.000Z";
 const OWASP_URL = "https://owasp.org/projects/mcp-top-10";
 
@@ -37,11 +38,11 @@ export function toStixBundle(snapshot: Snapshot): Record<string, unknown> {
     {
       type: "marking-definition",
       spec_version: "2.1",
-      id: TLP_CLEAR_ID,
-      created: TLP_CLEAR_CREATED,
+      id: TLP_MARKING_ID,
+      created: TLP_MARKING_CREATED,
       definition_type: "tlp",
-      name: "TLP:CLEAR",
-      definition: { tlp: "clear" },
+      name: "TLP:WHITE",
+      definition: { tlp: "white" },
     },
     {
       type: "identity",
@@ -60,7 +61,7 @@ export function toStixBundle(snapshot: Snapshot): Record<string, unknown> {
       created,
       modified: created,
       created_by_ref: identityId,
-      object_marking_refs: [TLP_CLEAR_ID],
+      object_marking_refs: [TLP_MARKING_ID],
       name: host,
       description: `Remote MCP endpoint observed with a passive handshake. Target: ${probe.target}`,
       infrastructure_types: ["hosting"],
@@ -92,7 +93,7 @@ export function toStixBundle(snapshot: Snapshot): Record<string, unknown> {
       created,
       modified: created,
       created_by_ref: identityId,
-      object_marking_refs: [TLP_CLEAR_ID],
+      object_marking_refs: [TLP_MARKING_ID],
       name: `${finding.checkId}: ${finding.title}`,
       description: finding.observation,
       external_references: externalReferences,
@@ -113,7 +114,7 @@ export function toStixBundle(snapshot: Snapshot): Record<string, unknown> {
       created,
       modified: created,
       created_by_ref: identityId,
-      object_marking_refs: [TLP_CLEAR_ID],
+      object_marking_refs: [TLP_MARKING_ID],
       relationship_type: "has",
       source_ref: infraId,
       target_ref: vulnId,
@@ -138,7 +139,7 @@ export function toStixBundle(snapshot: Snapshot): Record<string, unknown> {
       created,
       modified: created,
       created_by_ref: identityId,
-      object_marking_refs: [TLP_CLEAR_ID],
+      object_marking_refs: [TLP_MARKING_ID],
       abstract: `${finding.checkId} evidence for ${host}`,
       content,
       object_refs: [infraId, vulnId],

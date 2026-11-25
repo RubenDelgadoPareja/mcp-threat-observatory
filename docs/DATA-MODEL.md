@@ -128,7 +128,9 @@ and `limitations`.
 
 | STIX object | Maps to |
 | --- | --- |
-| `marking-definition` | TLP:CLEAR (canonical identifier `94868c89-…`) |
+| `marking-definition` | TLP:WHITE, the pre-2.0 name of TLP:CLEAR (`613f2e26-…`). The reference
+implementation still validates that object, so emitting it keeps the bundle
+interoperable; the sharing level is identical |
 | `identity` | The collector, `identity_class: system` |
 | `infrastructure` | The remote endpoint, `infrastructure_types: ["hosting"]` |
 | `vulnerability` | One per check that produced a finding |
