@@ -227,6 +227,7 @@ Rationale, false-positive behaviour and interpretation for each check:
 - [Portfolio notes](docs/PORTFOLIO.md) — how to present this without overclaiming
 - [Method note: Evidence, not verdicts](notes/2026-11-evidence-not-verdicts.md)
 - [Baseline: six MCP servers in a sandbox](notes/2026-11-corpus-baseline.md)
+- [Threat-modelling the instrument](notes/2026-11-threat-modelling-the-instrument.md)
 - [Consented pilot and outreach](docs/OUTREACH.md) — message, rules, timeline
 - [Project brief](docs/BRIEF.md) — one page, if someone asks what this is
 - [Try it locally](docs/TRY-IT.md) — five commands, no internet required
