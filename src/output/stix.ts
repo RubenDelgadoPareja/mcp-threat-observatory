@@ -3,7 +3,10 @@ import type { Snapshot } from "../model.ts";
 import { VERSION } from "../version.ts";
 import { snapshotFingerprint } from "./json.ts";
 
-const TLP_CLEAR_ID = "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9";
+// Canonical STIX 2.1 TLP:CLEAR marking. The old TLP:WHITE id (613f2e26-…) is a
+// different definition and is rejected by the reference implementation.
+const TLP_CLEAR_ID = "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f";
+const TLP_CLEAR_CREATED = "2022-10-01T00:00:00.000Z";
 const CREATED = "2026-01-01T00:00:00.000Z";
 const OWASP_URL = "https://owasp.org/projects/mcp-top-10";
 
@@ -35,8 +38,9 @@ export function toStixBundle(snapshot: Snapshot): Record<string, unknown> {
       type: "marking-definition",
       spec_version: "2.1",
       id: TLP_CLEAR_ID,
-      created: "2017-01-20T00:00:00.000Z",
+      created: TLP_CLEAR_CREATED,
       definition_type: "tlp",
+      name: "TLP:CLEAR",
       definition: { tlp: "clear" },
     },
     {
@@ -74,11 +78,11 @@ export function toStixBundle(snapshot: Snapshot): Record<string, unknown> {
 
   for (const finding of findings) {
     const vulnId = `vulnerability--${uuidv5(`vulnerability|${finding.checkId}|${finding.title}`)}`;
-    const externalReferences = [
+    const externalReferences: Array<{ source_name: string; external_id: string; url?: string }> = [
       ...finding.owasp.map((id) => ({ source_name: "OWASP MCP Top 10", external_id: id, url: OWASP_URL })),
     ];
     if (externalReferences.length === 0) {
-      externalReferences.push({ source_name: "mcp-threat-observatory", external_id: "interoperability", url: "" });
+      externalReferences.push({ source_name: "mcp-threat-observatory", external_id: "interoperability" });
     }
 
     objects.push({

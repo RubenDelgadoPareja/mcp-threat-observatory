@@ -153,7 +153,7 @@ export async function runBehaviour(options: RunBehaviourOptions): Promise<Behavi
   ];
   if (isolation.network === "open") {
     limitations.push(
-      "Network isolation was NOT applied (--allow-unisolated): outbound connections could reach real destinations.",
+      "Network isolation was NOT applied (--allow-unisolated): outbound connections could reach real destinations. This run is not isolated.",
     );
   }
 

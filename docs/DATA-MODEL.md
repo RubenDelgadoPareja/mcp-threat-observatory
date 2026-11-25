@@ -128,7 +128,7 @@ and `limitations`.
 
 | STIX object | Maps to |
 | --- | --- |
-| `marking-definition` | TLP:CLEAR (canonical identifier `613f2e26-…`) |
+| `marking-definition` | TLP:CLEAR (canonical identifier `94868c89-…`) |
 | `identity` | The collector, `identity_class: system` |
 | `infrastructure` | The remote endpoint, `infrastructure_types: ["hosting"]` |
 | `vulnerability` | One per check that produced a finding |

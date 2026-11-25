@@ -75,7 +75,7 @@ describe("behaviour acceptance", () => {
 
       if (unisolatedFallback) {
         expect(record.isolation.network).toBe("open");
-        expect(record.limitations.join(" ")).toMatch(/not isolated/i);
+        expect(record.limitations.join(" ")).toMatch(/is not isolated/i);
       } else {
         expect(record.isolation.network).toBe("isolated");
         expect(record.isolation.mechanism).toBe("unshare-rn");

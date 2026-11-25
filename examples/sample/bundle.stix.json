@@ -5,9 +5,10 @@
     {
       "type": "marking-definition",
       "spec_version": "2.1",
-      "id": "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9",
-      "created": "2017-01-20T00:00:00.000Z",
+      "id": "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f",
+      "created": "2022-10-01T00:00:00.000Z",
       "definition_type": "tlp",
+      "name": "TLP:CLEAR",
       "definition": {
         "tlp": "clear"
       }
@@ -20,7 +21,7 @@
       "modified": "2026-01-01T00:00:00.000Z",
       "name": "mcp-threat-observatory",
       "identity_class": "system",
-      "description": "Passive collector, version 0.1.0. Contact: not configured."
+      "description": "Passive collector, version 0.4.0. Contact: not configured."
     },
     {
       "type": "infrastructure",
@@ -30,7 +31,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "name": "127.0.0.1:8787",
       "description": "Remote MCP endpoint observed with a passive handshake. Target: http://127.0.0.1:8787/mcp",
@@ -55,7 +56,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "name": "AUTH-001: MCP endpoint completes a handshake with no credential",
       "description": "An unauthenticated initialize succeeded (HTTP 200) and 4 tools were enumerated.",
@@ -85,7 +86,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "relationship_type": "has",
       "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
@@ -99,7 +100,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "abstract": "AUTH-001 evidence for 127.0.0.1:8787",
       "content": "Observation: An unauthenticated initialize succeeded (HTTP 200) and 4 tools were enumerated.\nInference: Tools with high-impact capability are reachable without a credential: send_email.\nRecommendation: If this endpoint is not intentionally public, require OAuth 2.1 per the MCP authorization specification and return 401 with a WWW-Authenticate challenge on unauthenticated requests.\nLimitations: Only the unauthenticated surface was observed. Behaviour behind the login boundary is unknown. | Intent is not observable: a public endpoint may be a deliberate choice.\nEvidence: POST http://127.0.0.1:8787/mcp → 200 | initialize → result",
@@ -121,7 +122,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "name": "RISK-001: Catalog combines private-data access, untrusted input and egress",
       "description": "The catalog contains tools that read private data (list_customers, get_notes), tools that accept unconstrained external input (fetch_url) and tools that can send data outward (fetch_url, send_email).",
@@ -156,7 +157,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "relationship_type": "has",
       "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
@@ -170,7 +171,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "abstract": "RISK-001 evidence for 127.0.0.1:8787",
       "content": "Observation: The catalog contains tools that read private data (list_customers, get_notes), tools that accept unconstrained external input (fetch_url) and tools that can send data outward (fetch_url, send_email).\nInference: A single injected instruction reaching the ingress tool could move data from the reader to the egress tool. This is a structural risk indicator inferred from tool metadata, not an observed exploit.\nRecommendation: Separate private-data readers from egress tools across servers, require explicit confirmation before outbound actions, and scope credentials per tool rather than per server.\nLimitations: Capability classes are inferred from tool names, descriptions and annotations; they may be wrong. | No tool was invoked, so no data flow was observed. | A trifecta indicator is not a vulnerability and must not be reported as one.\nEvidence: tools/list → capability composition",
@@ -192,7 +193,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "name": "TOOL-002: Tool metadata contains language aimed at the model",
       "description": "1 metadata field matched narrow injection heuristics: tools[get_notes].description (instruction-override, credential-path).",
@@ -228,7 +229,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "relationship_type": "has",
       "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
@@ -242,7 +243,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "abstract": "TOOL-002 evidence for 127.0.0.1:8787",
       "content": "Observation: 1 metadata field matched narrow injection heuristics: tools[get_notes].description (instruction-override, credential-path).\nInference: Text in tool metadata may be intended to steer the model rather than describe the tool. This is a signal, not proof of malice.\nRecommendation: Review the matched fields manually. If the wording is not justified by the tool's function, treat the server as untrusted until the publisher explains it. Prefer servers that pin tool definitions by hash.\nLimitations: Pattern matching cannot distinguish adversarial metadata from unusual but legitimate documentation. | Novel or paraphrased instructions will not be detected. | Absence of a match is not evidence of safety.\nEvidence: tools[get_notes].description",
@@ -264,15 +265,14 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "name": "PROTO-001: Discovery methods are unimplemented rather than empty",
       "description": "prompts/list returned JSON-RPC -32601 (Method not found).",
       "external_references": [
         {
           "source_name": "mcp-threat-observatory",
-          "external_id": "interoperability",
-          "url": ""
+          "external_id": "interoperability"
         }
       ],
       "x_mcp_observatory": {
@@ -294,7 +294,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "relationship_type": "has",
       "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
@@ -308,7 +308,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "abstract": "PROTO-001 evidence for 127.0.0.1:8787",
       "content": "Observation: prompts/list returned JSON-RPC -32601 (Method not found).\nInference: Tooling that enumerates capabilities will report the server as partially broken, and marketplace listings may be rejected or incomplete.\nRecommendation: Return an empty array ({ resources: [] } / { prompts: [] }) when the capability is not offered.\nLimitations: This affects interoperability, not the security of the server itself.\nEvidence: prompts/list → -32601",
@@ -330,7 +330,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "name": "TOOL-003: Tool input schemas accept unconstrained input",
       "description": "3 of 4 tools accept an unconstrained string parameter; 2 use an object schema without additionalProperties: false. High-impact tools affected: send_email.",
@@ -365,7 +365,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "relationship_type": "has",
       "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
@@ -379,7 +379,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "abstract": "TOOL-003 evidence for 127.0.0.1:8787",
       "content": "Observation: 3 of 4 tools accept an unconstrained string parameter; 2 use an object schema without additionalProperties: false. High-impact tools affected: send_email.\nInference: Unconstrained input widens the path from model output to a shell, a query, a filesystem path or an outbound request.\nRecommendation: Set additionalProperties: false and constrain every string parameter with enum, pattern, format or maxLength.\nLimitations: Schema strictness is a proxy: a strict schema does not guarantee safe handling downstream.\nEvidence: tools/list → inputSchema",
@@ -401,7 +401,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "name": "TOOL-001: Tool metadata is incomplete",
       "description": "Of 4 tools: 0 have no annotations, 4 have no title, 0 have no description.",
@@ -436,7 +436,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "relationship_type": "has",
       "source_ref": "infrastructure--ee142666-9769-5802-9bd3-3ad14485d499",
@@ -450,7 +450,7 @@
       "modified": "2026-11-22T15:29:59.824Z",
       "created_by_ref": "identity--83905312-a177-53f3-97cf-eefc65221708",
       "object_marking_refs": [
-        "marking-definition--613f2e26-407d-48c7-9eca-b8e91df99dc9"
+        "marking-definition--94868c89-83c2-496f-b23b-7d1b3d2f0e0f"
       ],
       "abstract": "TOOL-001 evidence for 127.0.0.1:8787",
       "content": "Observation: Of 4 tools: 0 have no annotations, 4 have no title, 0 have no description.\nInference: Clients cannot warn users about destructive or open-world behaviour, and LLM tool selection relies on descriptions that are missing.\nRecommendation: Annotate every tool with title, readOnlyHint, destructiveHint, idempotentHint and openWorldHint, and write a description that states when the tool should and should not be used.\nLimitations: Annotations are hints, not enforcement; correct annotation does not imply correct behaviour.\nEvidence: tools/list → annotations/title/description",
