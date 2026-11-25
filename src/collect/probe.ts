@@ -7,6 +7,7 @@ import {
   send,
   type PacerOptions,
 } from "./http.ts";
+import { VERSION } from "../version.ts";
 import {
   COLLECTOR_NAME,
   SCHEMA_VERSION,
@@ -34,7 +35,7 @@ export function defaultProbeConfig(overrides: Partial<ProbeConfig> = {}): ProbeC
     ...overrides,
     contact,
     userAgent,
-    version: overrides.version ?? "0.1.0",
+    version: overrides.version ?? VERSION,
   };
 }
 

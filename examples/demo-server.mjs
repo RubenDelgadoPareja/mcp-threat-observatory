@@ -282,5 +282,6 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, "127.0.0.1", () => {
-  console.log(`profile=${PROFILE} demo MCP endpoint: http://127.0.0.1:${PORT}/mcp`);
+  const actual = server.address().port;
+  console.log(`profile=${PROFILE} demo MCP endpoint: http://127.0.0.1:${actual}/mcp`);
 });

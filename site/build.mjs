@@ -85,6 +85,16 @@ const index = readFileSync(join(siteDir, "index.html"), "utf8").replace(
 );
 writeFileSync(join(publicDir, "index.html"), index);
 
+const SITE = "https://rubendelgadopareja.github.io/mcp-threat-observatory";
+const urls = ["", "index.html", ...files.map((file) => `reports/${file.replace(/\.json$/, "")}.html`)];
+writeFileSync(
+  join(publicDir, "sitemap.xml"),
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
+    .map((path) => `  <url><loc>${SITE}/${path}</loc></url>`)
+    .join("\n")}\n</urlset>\n`,
+);
+writeFileSync(join(publicDir, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
+
 console.log(`reports: ${files.length} · landing: site/public/index.html`);
 
 const tailwind = spawnSync(

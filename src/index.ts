@@ -26,6 +26,7 @@ export {
 export { writeAssessment, type WrittenAssessment } from "./output/assessment.ts";
 export { renderSnapshotHtml, renderAssessmentHtml } from "./output/html.ts";
 export { startUiServer, type UiOptions, type UiServer } from "./ui.ts";
+export { runDemo, type DemoResult } from "./demo.ts";
 
 export { runBehaviour, canIsolateNetwork, type RunBehaviourOptions } from "./behaviour/runner.ts";
 export { analyseBehaviour, BEHAVIOUR_RULES, type BehaviourRule } from "./behaviour/analyser.ts";

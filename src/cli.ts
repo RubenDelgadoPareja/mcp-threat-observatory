@@ -12,6 +12,7 @@ import { buildAssessment, renderAssessmentMarkdown } from "./assess.ts";
 import { writeAssessment } from "./output/assessment.ts";
 import { renderSnapshotHtml } from "./output/html.ts";
 import { startUiServer } from "./ui.ts";
+import { runDemo } from "./demo.ts";
 import { diffSnapshots, renderDrift } from "./drift.ts";
 import type { Snapshot } from "./model.ts";
 import type { BehaviourRecord } from "./behaviour/types.ts";
@@ -37,6 +38,24 @@ program
       "Collects what an ordinary client sees, then separates observation from inference.",
   )
   .version(VERSION, "-v, --version");
+
+program
+  .command("demo")
+  .description("Run the bundled synthetic server and print a real report (no setup, no network)")
+  .option("--json", "print the snapshot JSON instead of the report")
+  .action(async (options: Record<string, boolean | undefined>) => {
+    try {
+      const { snapshot, markdown } = await runDemo();
+      console.log(options.json === true ? JSON.stringify(snapshot, null, 2) : markdown);
+      console.error(
+        `demo: ${snapshot.findings.length} finding(s) against a synthetic local server.\n` +
+          "Next: mcpobs scan https://your-server/mcp --authorized",
+      );
+    } catch (error) {
+      console.error(`demo failed: ${error instanceof Error ? error.message : String(error)}`);
+      process.exitCode = 1;
+    }
+  });
 
 program
   .command("checks")

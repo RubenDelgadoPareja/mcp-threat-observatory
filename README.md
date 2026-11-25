@@ -1,5 +1,9 @@
 # mcp-threat-observatory
 
+[![ci](https://github.com/RubenDelgadoPareja/mcp-threat-observatory/actions/workflows/ci.yml/badge.svg)](https://github.com/RubenDelgadoPareja/mcp-threat-observatory/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/RubenDelgadoPareja/mcp-threat-observatory)](https://github.com/RubenDelgadoPareja/mcp-threat-observatory/releases)
+[![license](https://img.shields.io/github/license/RubenDelgadoPareja/mcp-threat-observatory)](LICENSE)
+
 **A provenance layer for the MCP supply chain.**
 
 MCP servers are the new supply chain: a package that behaves as advertised and
@@ -96,6 +100,13 @@ the ecosystem's own parser, computes corpus distributions, and implements drift
 detection over tool definitions.
 
 ## Quickstart
+
+```bash
+# zero setup, no network, no flags
+npx github:RubenDelgadoPareja/mcp-threat-observatory demo
+```
+
+From source:
 
 ```bash
 npm install

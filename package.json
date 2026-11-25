@@ -22,6 +22,7 @@
   },
   "files": [
     "dist",
+    "examples",
     "runtime",
     "docs",
     "README.md",
